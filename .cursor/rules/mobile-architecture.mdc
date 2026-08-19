@@ -1,0 +1,33 @@
+---
+description: Expo mobile app architecture — features, hooks, types, constants
+globs: apps/mobile/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Mobile (`apps/mobile`)
+
+## Folder rules
+
+- `app/` — Expo Router screens only (compose UI + hooks).
+- `src/features/<domain>/` — feature UI, feature hooks, feature API.
+- `src/hooks/` — cross-feature hooks only.
+- `src/types/` — mobile-only types; prefer `@fleetflow/shared-types`.
+- `src/constants/` — intervals, storage keys, route names, map defaults.
+- `src/services/` — axios client, WebSocketManager, location, secure storage.
+- `src/store/` — Redux Toolkit slices only.
+
+## Patterns
+
+```tsx
+// ✅ screen is thin
+export default function DeliveryScreen() {
+  const { delivery, start } = useDeliveryDetails(id);
+  return <DeliveryDetailsView delivery={delivery} onStart={start} />;
+}
+```
+
+- Tracking state (`isTracking`, `pendingLocations`, `connectionStatus`) lives in Redux `tracking` slice.
+- Lists/details from API: TanStack Query; mutate via services, invalidate queries.
+- Tokens only in SecureStore; Axios interceptor refreshes on 401 once, then logout.
+- Maps: markers + polyline + camera helpers in `features/map`, not in the screen file.
+- Background GPS needs a dev build — gate behind feature flag / clear comments; do not assume Expo Go.

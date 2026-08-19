@@ -1,0 +1,26 @@
+---
+description: FastAPI backend layering, auth, realtime, concurrency
+globs: apps/api/**/*.py
+alwaysApply: false
+---
+
+# API (`apps/api`)
+
+## Layering
+
+`routes → services → repositories → models`
+
+- Pydantic schemas for request/response; do not leak ORM models to clients.
+- JWT access + refresh; `GET /auth/me`, logout invalidates refresh where implemented.
+- WebSocket fan-out via Redis Pub/Sub; last location also in Redis `driver:{id}:location`.
+
+## Domain
+
+- Roles: `DRIVER`, `ADMIN`.
+- Delivery statuses: `PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELLED`.
+- Reject illegal transitions and double-assign with transactions + DB constraints.
+- Location payload: lat, lng, accuracy, speed, heading, timestamp.
+
+## Testing
+
+Prefer focused pytest coverage for auth, status transitions, assign races, and tracking ingest.

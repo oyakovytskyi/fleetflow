@@ -1,0 +1,12 @@
+---
+description: Keep memory bank updated after milestones
+globs: memory-bank/**/*
+alwaysApply: false
+---
+
+# Memory Bank Hygiene
+
+- `activeContext.md` = current focus + next steps (update often).
+- `progress.md` = checklist truth.
+- `systemPatterns.md` = only when architecture decisions change.
+- Never store secrets, tokens, or private keys in memory bank files.

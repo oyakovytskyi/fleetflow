@@ -1,0 +1,12 @@
+---
+description: Shared types package — single source of truth for contracts
+globs: packages/shared-types/**/*
+alwaysApply: false
+---
+
+# Shared Types
+
+- Export enums and DTO interfaces used by mobile and admin.
+- WebSocket event names and payloads are defined here first.
+- Do not put runtime logic or React code in this package.
+- Keep versions additive; prefer optional fields over breaking renames during MVP.

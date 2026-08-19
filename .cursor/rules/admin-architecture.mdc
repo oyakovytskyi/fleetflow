@@ -1,0 +1,13 @@
+---
+description: Next.js admin conventions — thin UI, live tracking focus
+globs: apps/admin/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Admin (`apps/admin`)
+
+- Keep UI simple: login, dashboard stats, drivers, deliveries, live tracking map.
+- Live map is the hero feature: WebSocket → update markers without remounting the map.
+- Use TanStack Query for REST; local map marker state can be React state/Redux.
+- Memoize marker list updates; avoid re-rendering the full page on every location tick.
+- Reuse types from `packages/shared-types` for WS events and delivery statuses.
