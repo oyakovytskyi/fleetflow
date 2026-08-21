@@ -1,0 +1,9 @@
+{
+  "name": "@fleetflow/admin",
+  "version": "0.0.1",
+  "private": true,
+  "description": "FleetFlow admin panel (Next.js) — scaffold pending",
+  "scripts": {
+    "dev": "echo \"Next.js admin not scaffolded yet.\""
+  }
+}

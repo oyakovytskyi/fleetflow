@@ -1,0 +1,9 @@
+{
+  "name": "@fleetflow/api",
+  "version": "0.0.1",
+  "private": true,
+  "description": "FleetFlow API (FastAPI) — scaffold pending",
+  "scripts": {
+    "dev": "echo \"FastAPI app not scaffolded yet.\""
+  }
+}
