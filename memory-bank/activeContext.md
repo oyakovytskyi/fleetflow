@@ -2,25 +2,24 @@
 
 ## Current focus
 
-Project bootstrap: memory bank, Cursor rules, monorepo folder skeleton, architecture decisions. **No app runtime yet** (Expo/Next/FastAPI apps not generated).
+Sprint 1: Expo mobile scaffold done. Next — Redux Toolkit + TanStack Query, then API/admin scaffolds.
 
 ## Recent decisions
 
 - Workspace root = FleetFlow monorepo (folder may still be named `reactnative`).
-- MVP-first: foreground GPS + WS before background/offline.
-- Feature-based mobile `src/` with dedicated `hooks/`, `types/`, `constants/`.
-- Redux Toolkit for client session/tracking; TanStack Query for server lists.
+- Monorepo tooling: **npm workspaces**.
+- Expo SDK 57 + Expo Router tabs (Home / Deliveries / Map / Profile).
+- Template UI helpers stay in `components/` + root `constants/`; domain code in `src/`.
+- Small commits: one task/feature per commit.
 
 ## Next steps
 
-1. Initialize git (if not already) and root README.
-2. Scaffold Expo app in `apps/mobile` with Expo Router + TS.
-3. Scaffold FastAPI in `apps/api` with auth + deliveries stubs.
-4. Scaffold Next.js admin in `apps/admin`.
-5. Add `packages/shared-types` DeliveryStatus / WS event types.
-6. Implement Sprint 1–3 from `PLAN.md`.
+1. Commit: npm workspaces (if not yet).
+2. Commit: Expo mobile scaffold.
+3. Wire Redux Toolkit + TanStack Query on mobile.
+4. Scaffold FastAPI in `apps/api`.
+5. Scaffold Next.js admin in `apps/admin`.
 
 ## Open questions
 
 - Keep workspace directory name `reactnative` vs rename to `fleetflow`?
-- Prefer npm workspaces / pnpm for monorepo tooling?

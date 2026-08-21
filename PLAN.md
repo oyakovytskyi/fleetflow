@@ -18,12 +18,13 @@ Next.js Admin ◀──────────WS──────────�
 
 - [x] Memory bank + Cursor rules
 - [x] Folder skeleton + shared-types stubs
-- [ ] Git init + root tooling (workspaces optional)
-- [ ] Real Expo / Next / FastAPI app generation
+- [x] Git init
+- [x] Root tooling (npm workspaces)
+- [ ] Real Expo / Next / FastAPI app generation (Expo done; Next + FastAPI pending)
 
 ## Sprint 1 — Foundation (mobile + monorepo)
 
-1. Create Expo app in `apps/mobile` (TS, Expo Router, ESLint)
+1. [x] Create Expo app in `apps/mobile` (TS, Expo Router)
 2. Wire `src/` feature layout, Redux Toolkit, TanStack Query
 3. Constants, theme tokens, env config
 4. Shared-types package consumed by mobile

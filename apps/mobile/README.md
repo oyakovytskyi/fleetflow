@@ -1,24 +1,39 @@
 # Mobile app (Expo)
 
-Placeholder layout. Generate the real Expo app here next:
+FleetFlow driver app — Expo Router + TypeScript.
+
+## Run
+
+From monorepo root:
 
 ```bash
-npx create-expo-app@latest . --template tabs
+npm install
+npm run mobile
 ```
 
-Or create in a temp folder and merge into this tree, preserving `src/`.
+Or:
 
-## Intended router groups
-
-```
-app/
-  (auth)/login.tsx
-  (auth)/register.tsx
-  (tabs)/index.tsx
-  (tabs)/deliveries.tsx
-  (tabs)/map.tsx
-  (tabs)/profile.tsx
-  delivery/[id].tsx
+```bash
+cd apps/mobile
+npx expo start
 ```
 
-See `src/` for features, hooks, types, constants, services, store.
+## Layout
+
+```
+app/                 # Expo Router screens (thin)
+  (tabs)/            # Home, Deliveries, Map, Profile
+src/
+  features/          # auth, deliveries, tracking, map, profile
+  hooks/
+  services/
+  store/
+  types/
+  constants/
+components/          # Expo template UI helpers (Themed, etc.)
+constants/           # Colors theme tokens
+```
+
+## Status
+
+Scaffold only — Redux, TanStack Query, maps, and GPS come in later Sprint 1–5 commits.

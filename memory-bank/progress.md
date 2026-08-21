@@ -7,10 +7,14 @@
 - [x] Cursor rules for monorepo / mobile / API
 - [x] Folder skeleton: apps, packages, hooks, types, constants
 - [x] `PLAN.md` sprint backlog
+- [x] Git init commit
+- [x] npm workspaces root (`@fleetflow/*`)
+- [x] Expo app scaffold in `apps/mobile` (Expo Router tabs: Home/Deliveries/Map/Profile)
 
 ## In progress
 
-- [ ] Generate real Expo / Next / FastAPI apps (not just folders)
+- [ ] Sprint 1 remaining: Redux Toolkit + TanStack Query
+- [ ] Scaffold FastAPI + Next.js admin
 
 ## Remaining (high level)
 
