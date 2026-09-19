@@ -7,17 +7,27 @@ fleetflow/   (this workspace root)
 ├── apps/mobile     # Expo + Expo Router + TypeScript
 ├── apps/admin      # Next.js + TypeScript
 ├── apps/api        # FastAPI + SQLAlchemy
-├── packages/shared-types
+├── packages/shared-types   # DTOs, enums, WS events
+├── packages/config         # tsconfig.base.json (+ lint presets later)
 ├── memory-bank/
 ├── .cursor/rules/
+├── turbo.json
 ├── docker-compose.yml
 └── PLAN.md
 ```
+
+Turborepo drives every script from the root; npm workspaces only handle linking.
+Task graph: `build`/`test` depend on upstream `build`, `lint` depends on upstream
+`typecheck`, and `dev`/`start` are uncached persistent tasks. TypeScript workspaces
+extend `@fleetflow/config/tsconfig.base.json`; `apps/mobile` extends
+`expo/tsconfig.base` (Expo owns JSX/RN lib settings) and mirrors the strict flags.
 
 ## Decision log
 
 | Decision | Choice | Why |
 | --- | --- | --- |
+| Monorepo tooling | Turborepo + npm workspaces | One task graph across mobile/admin/api; cached typecheck/build |
+| Shared TS config | `packages/config/tsconfig.base.json` | Identical strictness in every workspace |
 | Mobile framework | Expo (dev client for background GPS) | Vacancy alignment; managed workflow + EAS |
 | Navigation | Expo Router (file-based) | Standard Expo pattern; auth/tabs groups |
 | Client state | Redux Toolkit | Interview alignment (Redux/Zustand); predictable slices |

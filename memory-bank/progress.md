@@ -10,6 +10,9 @@
 - [x] Git init commit
 - [x] npm workspaces root (`@fleetflow/*`)
 - [x] Expo app scaffold in `apps/mobile` (Expo Router tabs: Home/Deliveries/Map/Profile)
+- [x] Turborepo task graph (`build`/`typecheck`/`lint`/`test`/`dev`/`start`) + root scripts
+- [x] Shared `@fleetflow/config` tsconfig preset consumed by `shared-types`
+- [x] `npm run typecheck` green across workspaces
 
 ## In progress
 
@@ -42,5 +45,6 @@
 
 ## Known issues
 
-- Apps are scaffold placeholders only; cannot run yet.
-- Background GPS blocked until EAS development build.
+- `apps/api` and `apps/admin` are placeholder packages (echo `dev` scripts), not real apps.
+- Mobile runs in Expo Go SDK 57; background GPS still blocked until an EAS development build.
+- Node v22.12.0 is below RN 0.86.2's declared minimum (`^22.13.0`) — install-time warning.

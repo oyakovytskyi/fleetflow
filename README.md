@@ -30,14 +30,31 @@ Realtime fleet / courier tracking platform — React Native (Expo), FastAPI, Web
 
 ## Monorepo
 
+Turborepo over npm workspaces.
+
 ```
 apps/mobile              Expo driver app
 apps/admin               Next.js operator panel
 apps/api                 FastAPI + WS
 packages/shared-types    Shared DTOs / events
+packages/config          Shared tsconfig preset
 memory-bank/             AI/session project memory
 .cursor/rules/           Cursor project rules
+turbo.json               Task graph
 PLAN.md                  Sprint plan
+```
+
+## Commands
+
+Run everything from the repo root:
+
+```bash
+npm install
+npm run mobile      # expo start (scan QR with Expo Go SDK 57)
+npm run typecheck   # tsc --noEmit in every workspace, cached
+npm run lint
+npm run build
+npm run test
 ```
 
 ## MVP features
@@ -56,4 +73,5 @@ PLAN.md                  Sprint plan
 
 ## Status
 
-Bootstrap only — app generators not run yet. See `memory-bank/progress.md`.
+Mobile (Expo SDK 57) runs in Expo Go; API and admin are still placeholder workspaces.
+See `memory-bank/progress.md`.

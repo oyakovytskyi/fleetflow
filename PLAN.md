@@ -19,15 +19,16 @@ Next.js Admin ◀──────────WS──────────�
 - [x] Memory bank + Cursor rules
 - [x] Folder skeleton + shared-types stubs
 - [x] Git init
-- [x] Root tooling (npm workspaces)
+- [x] Root tooling (Turborepo + npm workspaces, shared tsconfig preset)
 - [ ] Real Expo / Next / FastAPI app generation (Expo done; Next + FastAPI pending)
 
 ## Sprint 1 — Foundation (mobile + monorepo)
 
 1. [x] Create Expo app in `apps/mobile` (TS, Expo Router)
-2. Wire `src/` feature layout, Redux Toolkit, TanStack Query
-3. Constants, theme tokens, env config
-4. Shared-types package consumed by mobile
+2. [x] Turborepo task graph + green `npm run typecheck`
+3. [ ] Wire `src/` feature layout, Redux Toolkit, TanStack Query
+4. [ ] Constants, theme tokens, env config
+5. [x] Shared-types package consumed by mobile (`src/types` re-exports DTOs)
 
 ## Sprint 2 — Backend core
 
