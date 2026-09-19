@@ -2,5 +2,8 @@
   "name": "@fleetflow/config",
   "version": "0.0.1",
   "private": true,
-  "description": "Shared ESLint/TSConfig presets (reserved)"
+  "description": "Shared TSConfig / lint presets for FleetFlow workspaces",
+  "files": [
+    "tsconfig.base.json"
+  ]
 }

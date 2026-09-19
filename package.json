@@ -3,14 +3,23 @@
   "version": "0.0.1",
   "private": true,
   "description": "FleetFlow — realtime fleet / courier tracking monorepo",
+  "packageManager": "npm@10.9.0",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "mobile": "npm run start --workspace=@fleetflow/mobile",
-    "admin": "npm run dev --workspace=@fleetflow/admin",
-    "api": "npm run dev --workspace=@fleetflow/api"
+    "mobile": "turbo run start --filter=@fleetflow/mobile",
+    "admin": "turbo run dev --filter=@fleetflow/admin",
+    "api": "turbo run dev --filter=@fleetflow/api",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.1"
   },
   "engines": {
     "node": ">=20"

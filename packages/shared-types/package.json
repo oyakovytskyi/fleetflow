@@ -9,5 +9,9 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@fleetflow/config": "*",
+    "typescript": "~5.9.2"
   }
 }

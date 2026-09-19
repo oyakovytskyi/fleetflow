@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Turborepo
+.turbo/
+
 # Expo / React Native
 .expo/
 dist/
