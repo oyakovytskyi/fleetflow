@@ -20,7 +20,7 @@ Next.js Admin ◀──────────WS──────────�
 - [x] Folder skeleton + shared-types stubs
 - [x] Git init
 - [x] Root tooling (Turborepo + npm workspaces, shared tsconfig preset)
-- [ ] Real Expo / Next / FastAPI app generation (Expo done; Next + FastAPI pending)
+- [ ] Real Expo / Next / FastAPI app generation (Expo + FastAPI done; Next pending)
 
 ## Sprint 1 — Foundation (mobile + monorepo)
 
@@ -32,10 +32,10 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Sprint 2 — Backend core
 
-1. FastAPI project skeleton (routes/services/repositories)
-2. Docker Compose: api + postgres + redis
-3. User model + roles (`DRIVER` | `ADMIN`)
-4. JWT: register/login/refresh/me/logout
+1. [x] FastAPI project skeleton (routes/services/repositories)
+2. [x] Docker Compose: api + postgres + redis
+3. [x] User model + roles (`DRIVER` | `ADMIN`)
+4. [x] JWT: register/login/refresh/me/logout
 
 ## Sprint 3 — Deliveries + mobile auth UI
 

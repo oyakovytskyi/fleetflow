@@ -19,18 +19,25 @@
 - [x] SecureStore token storage + public env config (`EXPO_PUBLIC_API_URL`)
 - [x] Providers wired in `app/_layout.tsx`; Home screen shows live store state
 - [x] Metro bundle smoke test via `expo export` (1748 modules, no resolution errors)
+- [x] FastAPI scaffold (`routes → services → repositories → models`)
+- [x] Docker Compose: api + postgres + redis (healthchecks, reload mount)
+- [x] JWT auth: register / login / refresh / me / logout (camelCase wire format)
+- [x] Refresh rotation + replay family revoke verified via smoke script
+- [x] Shared-types auth DTOs (`AuthResponseDto`, `LoginRequestDto`, …)
 
 ## In progress
 
-- [ ] Sprint 2: FastAPI scaffold + docker compose + JWT endpoints
 - [ ] Mobile auth feature (login screen + session hydration)
+- [ ] Delivery model + endpoints
+- [ ] Scaffold Next.js admin
 - [ ] ESLint config so the turbo `lint` task does real work
 
 ## Remaining (high level)
 
 ### MVP v1
 
-- [ ] Auth (JWT + SecureStore + refresh interceptor)
+- [x] Auth API (JWT + refresh rotation)
+- [ ] Auth mobile UI (SecureStore + refresh interceptor already wired)
 - [ ] Deliveries API + mobile list/detail
 - [ ] Map (driver/pickup/destination + polyline)
 - [ ] Foreground GPS → POST/WS location
@@ -52,6 +59,8 @@
 
 ## Known issues
 
-- `apps/api` and `apps/admin` are placeholder packages (echo `dev` scripts), not real apps.
+- `apps/admin` is still a placeholder package (echo `dev` script), not a real Next.js app.
 - Mobile runs in Expo Go SDK 57; background GPS still blocked until an EAS development build.
 - Node v22.12.0 is below RN 0.86.2's declared minimum (`^22.13.0`) — install-time warning.
+- API schema via `create_all` on boot — migrate to Alembic before anything resembling production.
+- Physical phone cannot reach `localhost:8000`; set `EXPO_PUBLIC_API_URL` to the machine's LAN IP.
