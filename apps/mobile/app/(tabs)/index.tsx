@@ -3,13 +3,13 @@ import { StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useAppConfig } from '@/src/hooks';
 import { useAppSelector } from '@/src/store/hooks';
-import { selectIsAuthenticated } from '@/src/store/slices/authSlice';
+import { selectUser } from '@/src/store/slices/authSlice';
 import { selectIsOnline } from '@/src/store/slices/networkSlice';
 import { selectConnectionStatus, selectIsTracking } from '@/src/store/slices/trackingSlice';
 
 export default function HomeScreen() {
   const { appName, apiUrl } = useAppConfig();
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
   const isOnline = useAppSelector(selectIsOnline);
   const isTracking = useAppSelector(selectIsTracking);
   const connectionStatus = useAppSelector(selectConnectionStatus);
@@ -17,10 +17,13 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{appName}</Text>
-      <Text style={styles.subtitle}>Driver home — deliveries and tracking come next.</Text>
+      <Text style={styles.subtitle}>
+        {user ? `Welcome, ${user.name}.` : 'Driver home — deliveries and tracking come next.'}
+      </Text>
 
       <View style={styles.status}>
-        <StatusRow label="Session" value={isAuthenticated ? 'signed in' : 'signed out'} />
+        <StatusRow label="Signed in as" value={user?.email ?? '—'} />
+        <StatusRow label="Role" value={user?.role ?? '—'} />
         <StatusRow label="Network" value={isOnline ? 'online' : 'offline'} />
         <StatusRow label="Tracking" value={isTracking ? 'active' : 'idle'} />
         <StatusRow label="Socket" value={connectionStatus.toLowerCase()} />
@@ -71,5 +74,6 @@ const styles = StyleSheet.create({
   rowValue: {
     fontWeight: '600',
     flexShrink: 1,
+    textAlign: 'right',
   },
 });

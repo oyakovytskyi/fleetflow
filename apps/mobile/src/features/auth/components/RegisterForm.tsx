@@ -1,0 +1,127 @@
+import { router } from 'expo-router';
+import { StyleSheet } from 'react-native';
+
+import { Text, View } from '@/components/Themed';
+import { APP_NAME } from '@/src/constants';
+
+import { getAuthErrorMessage, useRegister } from '../hooks/useAuth';
+import { AuthButton, AuthField, useAuthFormState } from './AuthForm';
+
+export function RegisterForm() {
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    name,
+    setName,
+    error,
+    setError,
+  } = useAuthFormState();
+  const registerMutation = useRegister();
+
+  async function onSubmit() {
+    setError(null);
+    if (!name.trim() || !email.trim() || !password) {
+      setError('Name, email, and password are required.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+
+    try {
+      await registerMutation.mutateAsync({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.brand}>{APP_NAME}</Text>
+      <Text style={styles.title}>Create account</Text>
+      <Text style={styles.subtitle}>Register as a driver to start taking deliveries.</Text>
+
+      <View style={styles.form}>
+        <AuthField
+          label="Name"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="words"
+          textContentType="name"
+          autoComplete="name"
+          placeholder="Alex Driver"
+        />
+        <AuthField
+          label="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          textContentType="emailAddress"
+          autoComplete="email"
+          placeholder="driver@example.com"
+        />
+        <AuthField
+          label="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          textContentType="newPassword"
+          autoComplete="password-new"
+          placeholder="At least 8 characters"
+        />
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <AuthButton
+          label="Create account"
+          onPress={onSubmit}
+          loading={registerMutation.isPending}
+        />
+      </View>
+
+      <AuthButton
+        label="Already have an account? Sign in"
+        variant="ghost"
+        onPress={() => router.push('/(auth)/login')}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  brand: {
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    opacity: 0.55,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  subtitle: {
+    marginBottom: 20,
+    opacity: 0.65,
+  },
+  form: {
+    gap: 14,
+  },
+  error: {
+    color: '#d92d20',
+    fontSize: 14,
+  },
+});
