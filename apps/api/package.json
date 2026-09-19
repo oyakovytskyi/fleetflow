@@ -2,8 +2,10 @@
   "name": "@fleetflow/api",
   "version": "0.0.1",
   "private": true,
-  "description": "FleetFlow API (FastAPI) — scaffold pending",
+  "description": "FleetFlow API (FastAPI) — runs via docker compose",
   "scripts": {
-    "dev": "echo \"FastAPI app not scaffolded yet.\""
+    "dev": "cd ../.. && docker compose up api",
+    "build": "cd ../.. && docker compose build api",
+    "stop": "cd ../.. && docker compose down"
   }
 }

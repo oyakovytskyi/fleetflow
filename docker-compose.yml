@@ -9,19 +9,40 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleetflow -d fleetflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
-  # api:
-  #   build: ./apps/api
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - postgres
-  #     - redis
+  api:
+    build: ./apps/api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DEBUG: "true"
+      DATABASE_URL: postgresql+asyncpg://fleetflow:fleetflow@postgres:5432/fleetflow
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: dev-only-change-me
+    ports:
+      - "8000:8000"
+    volumes:
+      # Source mount so --reload picks up edits without a rebuild.
+      - ./apps/api/app:/srv/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   pgdata:
