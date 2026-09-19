@@ -13,11 +13,18 @@
 - [x] Turborepo task graph (`build`/`typecheck`/`lint`/`test`/`dev`/`start`) + root scripts
 - [x] Shared `@fleetflow/config` tsconfig preset consumed by `shared-types`
 - [x] `npm run typecheck` green across workspaces
+- [x] Redux Toolkit store: `auth` / `tracking` / `network` slices + typed hooks
+- [x] TanStack Query client (no 4xx retries, `AppState` focus manager)
+- [x] Axios client: bearer injection, single-flight refresh, one retry per 401
+- [x] SecureStore token storage + public env config (`EXPO_PUBLIC_API_URL`)
+- [x] Providers wired in `app/_layout.tsx`; Home screen shows live store state
+- [x] Metro bundle smoke test via `expo export` (1748 modules, no resolution errors)
 
 ## In progress
 
-- [ ] Sprint 1 remaining: Redux Toolkit + TanStack Query
-- [ ] Scaffold FastAPI + Next.js admin
+- [ ] Sprint 2: FastAPI scaffold + docker compose + JWT endpoints
+- [ ] Mobile auth feature (login screen + session hydration)
+- [ ] ESLint config so the turbo `lint` task does real work
 
 ## Remaining (high level)
 

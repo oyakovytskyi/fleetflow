@@ -80,6 +80,13 @@ Rules:
 - `tracking` — `currentLocation`, `isTracking`, `activeDeliveryId`, `connectionStatus`, `pendingLocations`
 - `network` — online/offline
 
+## Token refresh contract (mobile)
+
+- `apiClient` injects the bearer token per request from SecureStore.
+- On 401: refresh once through a separate interceptor-free `refreshClient`, then replay the request.
+- Concurrent 401s await one shared refresh promise (single-flight).
+- A failed refresh clears SecureStore, dispatches `signedOut`, and clears the Query cache.
+
 ## WebSocket contract
 
 Event: `driver.location.updated`

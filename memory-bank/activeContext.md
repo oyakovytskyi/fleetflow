@@ -2,8 +2,11 @@
 
 ## Current focus
 
-Sprint 1. Expo SDK 57 scaffold + Turborepo task graph are in place and `npm run typecheck` is green.
-Next — Redux Toolkit + TanStack Query providers on mobile, then API/admin scaffolds.
+Sprint 1 is complete: Turborepo task graph, Expo SDK 57 app, Redux Toolkit store, TanStack Query,
+axios client with SecureStore refresh, and public env config. `npm run typecheck` is green and
+`expo export` bundles cleanly (1748 modules).
+
+Next — Sprint 2: scaffold FastAPI in `apps/api` so mobile auth has a real backend to talk to.
 
 ## Recent decisions
 
@@ -13,6 +16,10 @@ Next — Redux Toolkit + TanStack Query providers on mobile, then API/admin scaf
 - Expo SDK 57 + Expo Router tabs (Home / Deliveries / Map / Profile).
 - No hand-written Metro monorepo config — Expo SDK 52+ auto-detects workspaces.
 - Template UI helpers stay in `components/` + root `constants/`; domain code in `src/`.
+- Domain imports use the template's `@/` alias rooted at `apps/mobile`, so paths read `@/src/store`.
+- Tokens never enter Redux — `auth` slice holds `user` + `isHydrated`; SecureStore owns the tokens.
+- `apiClient` keeps a separate interceptor-free `refreshClient` and single-flights concurrent 401s.
+- Query does not retry 4xx; `focusManager` is driven by `AppState` since RN has no window focus.
 - Small commits: one task/feature per commit.
 
 ## Environment
@@ -22,10 +29,12 @@ Next — Redux Toolkit + TanStack Query providers on mobile, then API/admin scaf
 
 ## Next steps
 
-1. Wire Redux Toolkit store + TanStack Query provider in `app/_layout.tsx`.
-2. Env config (`app.config.ts` + `EXPO_PUBLIC_API_URL`) and `src/constants` intervals/storage keys.
-3. Scaffold FastAPI in `apps/api` (add `dev` script so turbo picks it up).
-4. Scaffold Next.js admin in `apps/admin`.
+1. Scaffold FastAPI in `apps/api` (routes/services/repositories + `dev` script so turbo picks it up).
+2. Docker Compose bring-up: api + postgres + redis.
+3. JWT endpoints: register / login / refresh / me / logout.
+4. Mobile auth feature: login screen, `useAuth`, session hydration on launch (`sessionRestored`).
+5. Scaffold Next.js admin in `apps/admin`.
+6. Add ESLint (`eslint-config-expo`) so the turbo `lint` task has a real implementation.
 
 ## Open questions
 

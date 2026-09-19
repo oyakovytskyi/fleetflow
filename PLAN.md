@@ -26,8 +26,8 @@ Next.js Admin ◀──────────WS──────────�
 
 1. [x] Create Expo app in `apps/mobile` (TS, Expo Router)
 2. [x] Turborepo task graph + green `npm run typecheck`
-3. [ ] Wire `src/` feature layout, Redux Toolkit, TanStack Query
-4. [ ] Constants, theme tokens, env config
+3. [x] Wire `src/` feature layout, Redux Toolkit, TanStack Query
+4. [x] Constants + env config (`EXPO_PUBLIC_API_URL`); theme tokens still template defaults
 5. [x] Shared-types package consumed by mobile (`src/types` re-exports DTOs)
 
 ## Sprint 2 — Backend core
