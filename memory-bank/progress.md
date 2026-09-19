@@ -24,10 +24,12 @@
 - [x] JWT auth: register / login / refresh / me / logout (camelCase wire format)
 - [x] Refresh rotation + replay family revoke verified via smoke script
 - [x] Shared-types auth DTOs (`AuthResponseDto`, `LoginRequestDto`, …)
+- [x] Mobile auth UI: login/register, session hydration, auth-gated routing
+- [x] Profile screen shows user + sign out
 
 ## In progress
 
-- [ ] Mobile auth feature (login screen + session hydration)
+- [ ] Verify auth on physical device (Expo Go)
 - [ ] Delivery model + endpoints
 - [ ] Scaffold Next.js admin
 - [ ] ESLint config so the turbo `lint` task does real work
