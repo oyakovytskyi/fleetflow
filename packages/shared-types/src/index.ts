@@ -24,6 +24,30 @@ export interface UserDto {
   role: UserRole;
 }
 
+export interface AuthTokensDto {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface LoginRequestDto {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequestDto extends LoginRequestDto {
+  name: string;
+}
+
+export interface RefreshRequestDto {
+  refreshToken: string;
+}
+
+/** Returned by `/auth/register` and `/auth/login`. `/auth/refresh` returns tokens only. */
+export interface AuthResponseDto {
+  user: UserDto;
+  tokens: AuthTokensDto;
+}
+
 export interface DeliveryDto {
   id: string;
   title: string;
