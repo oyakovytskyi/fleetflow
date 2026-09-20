@@ -1,12 +1,13 @@
 import { StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
+import { DeliveriesListView } from '@/src/features/deliveries/components/DeliveriesListView';
 
 export default function DeliveriesScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Deliveries</Text>
-      <Text style={styles.subtitle}>Assigned deliveries will appear here.</Text>
+      <Text style={styles.heading}>Deliveries</Text>
+      <DeliveriesListView />
     </View>
   );
 }
@@ -14,17 +15,12 @@ export default function DeliveriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
   },
-  title: {
+  heading: {
     fontSize: 22,
     fontWeight: '700',
-  },
-  subtitle: {
-    marginTop: 12,
-    textAlign: 'center',
-    opacity: 0.7,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
 });

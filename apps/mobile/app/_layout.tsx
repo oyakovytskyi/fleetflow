@@ -68,6 +68,7 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="delivery/[id]" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
