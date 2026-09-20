@@ -39,9 +39,9 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Sprint 3 — Deliveries + mobile auth UI
 
-1. Delivery model + CRUD/status endpoints
+1. [x] Delivery model + CRUD/status endpoints
 2. [x] Mobile login/register + SecureStore + Axios refresh
-3. Deliveries list + detail screens
+3. [x] Deliveries list + detail screens
 
 ## Sprint 4 — Maps
 

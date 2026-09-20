@@ -2,32 +2,29 @@
 
 ## Current focus
 
-Mobile auth UI is live: login/register screens, SecureStore session hydration, and auth-gated
-routing. Expo is running (`npm run mobile` → Metro on `:8081`). API still on `:8000`.
-
-Next — deliveries API + mobile list/detail, or verify register/login on the physical device.
+Sprint 3 deliveries are in place on API + mobile (list / detail / claim / start / complete).
+Next — maps (react-native-maps) or verify the full driver flow on device.
 
 ## Recent decisions
 
-- Auth screens live under `app/(auth)`; domain UI in `src/features/auth`.
-- Root layout hydrates once via `useSessionHydration`, then redirects between `(auth)` and `(tabs)`.
-- Mobile `.env` uses LAN IP `http://192.168.0.171:8000` (gitignored) so Expo Go on a phone can reach Docker.
-- Tokens stay in SecureStore; Redux only holds `user` + `isHydrated`.
-- Small commits: one task/feature per commit.
+- Deliveries status machine: `PENDING → ASSIGNED → IN_PROGRESS → COMPLETED | CANCELLED`.
+- Drivers can **claim** PENDING jobs; admins create + assign. Illegal transitions return 409.
+- Mobile detail route: `app/delivery/[id].tsx` (stack outside tabs).
+- Token storage probes SecureStore then falls back to AsyncStorage (Expo Go native gap).
 
 ## Environment
 
-- Expo Go **SDK 57** on device; Metro at `http://localhost:8081`.
-- API: `docker compose up` → `http://192.168.0.171:8000` (and localhost).
-- Phone and PC must be on the same Wi‑Fi for LAN mode.
+- API: `docker compose up` → `:8000` (health ok when stack is running).
+- Mobile: `npm run mobile` / Expo Go SDK 57; `.env` uses LAN IP for API.
+- Tunnel needs `@expo/ngrok` (devDependency on mobile).
 
 ## Next steps
 
-1. On device: open Expo Go → scan QR / enter `exp://192.168.0.171:8081` → register a driver → confirm Home/Profile.
-2. Delivery model + CRUD/status endpoints.
-3. Mobile deliveries list/detail.
+1. Verify on device: login → Deliveries tab → claim → start → complete.
+2. Seed a PENDING delivery as admin if the list is empty (POST `/deliveries` with admin token).
+3. Sprint 4: react-native-maps + markers/polyline.
 4. Scaffold Next.js admin.
-5. ESLint for the turbo `lint` task.
+5. ESLint for turbo `lint`.
 
 ## Open questions
 

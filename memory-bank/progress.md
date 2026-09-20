@@ -26,11 +26,13 @@
 - [x] Shared-types auth DTOs (`AuthResponseDto`, `LoginRequestDto`, …)
 - [x] Mobile auth UI: login/register, session hydration, auth-gated routing
 - [x] Profile screen shows user + sign out
+- [x] Delivery model + endpoints (create/list/get/claim/start/complete/cancel/assign)
+- [x] Mobile deliveries list + detail with claim/start/complete actions
 
 ## In progress
 
-- [ ] Verify auth on physical device (Expo Go)
-- [ ] Delivery model + endpoints
+- [ ] Verify full driver flow on physical device (Expo Go)
+- [ ] Sprint 4: maps
 - [ ] Scaffold Next.js admin
 - [ ] ESLint config so the turbo `lint` task does real work
 
@@ -39,8 +41,8 @@
 ### MVP v1
 
 - [x] Auth API (JWT + refresh rotation)
-- [ ] Auth mobile UI (SecureStore + refresh interceptor already wired)
-- [ ] Deliveries API + mobile list/detail
+- [x] Auth mobile UI (SecureStore/AsyncStorage + refresh interceptor)
+- [x] Deliveries API + mobile list/detail
 - [ ] Map (driver/pickup/destination + polyline)
 - [ ] Foreground GPS → POST/WS location
 - [ ] Admin live map
