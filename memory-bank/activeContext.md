@@ -2,8 +2,8 @@
 
 ## Current focus
 
-Sprint 3 deliveries are in place on API + mobile (list / detail / claim / start / complete).
-Next — maps (react-native-maps) or verify the full driver flow on device.
+Plan is current through Sprint 3. **Next: Sprint 4 — maps.**
+Repo lives locally at `C:\Users\exact\Desktop\reactnative` and on GitHub as `oyakovytskyi/fleetflow`.
 
 ## Recent decisions
 
@@ -14,18 +14,16 @@ Next — maps (react-native-maps) or verify the full driver flow on device.
 
 ## Environment
 
-- API: `docker compose up` → `:8000` (health ok when stack is running).
-- Mobile: `npm run mobile` / Expo Go SDK 57; `.env` uses LAN IP for API.
-- Tunnel needs `@expo/ngrok` (devDependency on mobile).
+- API: `docker compose up` → `:8000`.
+- Mobile: `npm run mobile` / Expo Go SDK 57; `.env` uses LAN IP for API (gitignored).
 
 ## Next steps
 
-1. Verify on device: login → Deliveries tab → claim → start → complete.
-2. Seed a PENDING delivery as admin if the list is empty (POST `/deliveries` with admin token).
-3. Sprint 4: react-native-maps + markers/polyline.
-4. Scaffold Next.js admin.
-5. ESLint for turbo `lint`.
+1. Sprint 4: react-native-maps + markers/polyline on Map tab.
+2. Sprint 5: foreground GPS → `POST /tracking/location`.
+3. Scaffold Next.js admin (Sprint 6).
+4. ESLint for turbo `lint`.
 
 ## Open questions
 
-- Keep workspace directory name `reactnative` vs rename to `fleetflow`?
+- Keep workspace directory name `reactnative` vs rename folder to `fleetflow`? (GitHub repo can still be `fleetflow`.)

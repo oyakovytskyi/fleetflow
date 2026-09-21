@@ -73,5 +73,6 @@ npm run test
 
 ## Status
 
-Mobile (Expo SDK 57) runs in Expo Go; API and admin are still placeholder workspaces.
-See `memory-bank/progress.md`.
+Through **Sprint 3**: mobile auth + deliveries (list/detail/claim/start/complete), FastAPI JWT +
+deliveries API via Docker. Next: Sprint 4 maps. Admin Next.js still a placeholder.
+See `PLAN.md` and `memory-bank/progress.md`.
