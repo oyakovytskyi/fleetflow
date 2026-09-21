@@ -46,13 +46,15 @@
 - [x] AsyncStorage GPS queue + flush on reconnect
 - [x] Pushed `feat/sprint-4-maps` … `feat/sprint-7-offline` to GitHub
 - [x] Background location TaskManager + EAS scaffold (`eas.json`)
+- [x] Admin deliveries page (create / assign / cancel) + driver list API
+- [x] Redis location trails + admin map polylines
+- [x] `npm run demo:drive` GPS simulator (MVP DoD proof without phone)
 
 ## In progress / blocked on human
 
-- [ ] Device E2E smoke (phone GPS → admin marker)
+- [ ] Optional phone E2E smoke
 - [ ] `eas build --profile development` for real background GPS
-- [ ] Commit + push `feat/sprint-8-background`
-- [ ] ESLint config so the turbo `lint` task does real work
+- [ ] ESLint / CI (Sprint 10)
 
 ## Remaining (high level)
 

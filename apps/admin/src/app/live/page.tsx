@@ -11,8 +11,9 @@ import {
   type DriverLocationSnapshotDto,
 } from '@fleetflow/shared-types';
 
-import { createDelivery, fetchDeliveries, fetchLocations } from '@/lib/api';
-import { clearSession, getAccessToken, getStoredUser } from '@/lib/auth';
+import { AdminShell } from '@/components/AdminShell';
+import { createDelivery, fetchDeliveries, fetchDriverTrail, fetchLocations } from '@/lib/api';
+import { getAccessToken, getStoredUser } from '@/lib/auth';
 import { AdminLiveSocket } from '@/lib/ws';
 
 const LiveMap = dynamic(() => import('@/components/LiveMap').then((m) => m.LiveMap), {
@@ -58,9 +59,9 @@ function browserNotify(title: string, body: string) {
 
 export default function LivePage() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [locations, setLocations] = useState<DriverLocationSnapshotDto[]>([]);
   const [deliveries, setDeliveries] = useState<DeliveryDto[]>([]);
+  const [trails, setTrails] = useState<Record<string, { lat: number; lng: number }[]>>({});
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [socketStatus, setSocketStatus] = useState<'CONNECTED' | 'DISCONNECTED' | 'RECONNECTING'>(
     'DISCONNECTED',
@@ -87,7 +88,6 @@ export default function LivePage() {
       router.replace('/login');
       return;
     }
-    setUserEmail(stored.email);
 
     let cancelled = false;
     const socket = new AdminLiveSocket();
@@ -95,9 +95,22 @@ export default function LivePage() {
     async function bootstrap() {
       try {
         const [locs, dels] = await Promise.all([fetchLocations(), fetchDeliveries()]);
+        if (cancelled) return;
+        setLocations(locs);
+        setDeliveries(dels);
+
+        const trailEntries = await Promise.all(
+          locs.map(async (loc) => {
+            try {
+              const trail = await fetchDriverTrail(loc.driverId);
+              return [loc.driverId, trail.points.map((p) => ({ lat: p.lat, lng: p.lng }))] as const;
+            } catch {
+              return [loc.driverId, []] as const;
+            }
+          }),
+        );
         if (!cancelled) {
-          setLocations(locs);
-          setDeliveries(dels);
+          setTrails(Object.fromEntries(trailEntries));
         }
       } catch (err) {
         if (!cancelled) {
@@ -185,7 +198,6 @@ export default function LivePage() {
     setError(null);
     try {
       await createDelivery(DEMO_DELIVERY);
-      // List/activity updates arrive over the delivery.created socket event.
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not create demo delivery');
     } finally {
@@ -193,42 +205,13 @@ export default function LivePage() {
     }
   }
 
-  function signOut() {
-    clearSession();
-    router.replace('/login');
-  }
-
   return (
-    <main style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-          flexWrap: 'wrap',
-          padding: '16px 20px',
-          borderBottom: '1px solid var(--border)',
-          background: 'rgba(15,20,25,0.85)',
-          backdropFilter: 'blur(8px)',
-        }}
-      >
-        <div>
-          <div style={{ fontSize: 12, letterSpacing: '0.1em', color: 'var(--muted)' }}>FLEETFLOW</div>
-          <h1 style={{ margin: 0, fontSize: 22 }}>Live map</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <span style={{ color: 'var(--muted)', fontSize: 13 }}>
-            {userEmail ?? 'admin'} · {socketStatus.toLowerCase()}
-            {freshestAge ? ` · last ping ${freshestAge}` : ''}
-          </span>
-          <button type="button" onClick={signOut} style={ghostBtn}>
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <div className="live-layout" style={layoutStyle}>
+    <AdminShell>
+      <div style={{ padding: '10px 20px', color: 'var(--muted)', fontSize: 13 }}>
+        Socket {socketStatus.toLowerCase()}
+        {freshestAge ? ` · last ping ${freshestAge}` : ''}
+      </div>
+      <div className="live-layout" style={{ display: 'grid', gap: 16, padding: 16, minHeight: 0 }}>
         <aside style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
           <Stat label="Active drivers" value={String(locations.length)} />
           <Stat label="In progress" value={String(counts.IN_PROGRESS)} />
@@ -240,7 +223,7 @@ export default function LivePage() {
             {seeding ? 'Creating…' : 'Seed Prague demo delivery'}
           </button>
           <p style={{ margin: 0, color: 'var(--muted)', fontSize: 12, lineHeight: 1.4 }}>
-            Drivers get a local notification on new jobs. This panel updates over WebSocket.
+            Or run <code>npm run demo:drive</code> to simulate a moving driver without a phone.
           </p>
 
           <div
@@ -280,17 +263,13 @@ export default function LivePage() {
             background: 'var(--panel)',
           }}
         >
-          <LiveMap locations={locations} />
+          <LiveMap locations={locations} trails={trails} />
         </section>
       </div>
 
       <style>{`
         .live-layout {
-          display: grid;
           grid-template-columns: minmax(220px, 280px) 1fr;
-          gap: 16px;
-          padding: 16px;
-          min-height: 0;
         }
         @media (max-width: 840px) {
           .live-layout {
@@ -298,7 +277,7 @@ export default function LivePage() {
           }
         }
       `}</style>
-    </main>
+    </AdminShell>
   );
 }
 
@@ -317,22 +296,6 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-const layoutStyle = {
-  display: 'grid',
-  gap: 16,
-  padding: 16,
-  minHeight: 0,
-} as const;
-
-const ghostBtn = {
-  border: '1px solid var(--border)',
-  background: 'transparent',
-  color: 'var(--text)',
-  borderRadius: 8,
-  padding: '8px 12px',
-  cursor: 'pointer',
-} as const;
 
 const primaryBtn = {
   border: 0,

@@ -2,74 +2,59 @@
 
 Realtime fleet / courier tracking — Expo driver app, FastAPI + Redis, Next.js admin live map.
 
-> Portfolio / interview pet project. Not commercial experience.
+> Portfolio / interview pet project demonstrating JWT auth, maps/GPS, WebSockets, offline queue, and an operator dashboard.
 
 ## Architecture
 
 ```
 React Native (Expo) ──REST──▶ FastAPI ──▶ PostgreSQL
         │                      │
-   foreground GPS              └── Redis (last location + pub/sub)
+   GPS (FG / BG*)              └── Redis (last location + trail + pub/sub)
         │                             │
         └──────── WebSocket ◀─────────┘
                                       │
-                           Next.js Admin live map
+                           Next.js Admin (live map + deliveries)
 ```
+
+\* Background GPS requires an EAS development build (not Expo Go).
+
+## Quick demo (no phone required)
+
+```bash
+npm install
+docker compose up -d          # API :8000, Postgres, Redis
+npm run admin                 # http://localhost:3000
+# sign in: admin@fleetflow.dev / password123  (register ADMIN once if needed)
+
+# terminal 2 — animate a driver on the live map
+npm run demo:drive
+```
+
+Open **Live map** while `demo:drive` runs — marker + trail move over WebSocket.
+
+## Full stack
+
+| Command | What |
+| --- | --- |
+| `npm run api` | FastAPI via Docker |
+| `npm run mobile` | Expo Go (set `EXPO_PUBLIC_API_URL` to LAN IP on a phone) |
+| `npm run admin` | Next.js admin |
+| `npm run demo:drive` | Simulated driver GPS |
+| `npm run typecheck` | Strict TS across workspaces |
+
+## What’s in the MVP
+
+- JWT auth with refresh rotation (DRIVER / ADMIN)
+- Deliveries claim / start / complete + admin assign
+- OSM map + **OSRM road routing** (mobile)
+- Foreground GPS → Redis → WebSocket admin markers
+- Delivery lifecycle events + local/browser notifications
+- Offline GPS queue (NetInfo + AsyncStorage flush)
+- Background GPS TaskManager + EAS scaffold
+- Admin: live map with trails, deliveries page, activity feed
 
 ## Monorepo
 
-Turborepo + npm workspaces.
+Turborepo + npm workspaces: `apps/mobile`, `apps/admin`, `apps/api`, `packages/shared-types`.
 
-| Path | Role |
-| --- | --- |
-| `apps/mobile` | Expo SDK 57 driver app (Expo Go) |
-| `apps/admin` | Next.js live map + counts |
-| `apps/api` | FastAPI JWT, deliveries, tracking, WS |
-| `packages/shared-types` | Shared DTOs / WS events |
-| `packages/config` | Shared TSConfig |
-| `PLAN.md` | Sprint backlog |
-
-## Quick start
-
-```bash
-# 1) Install
-npm install
-
-# 2) API + Postgres + Redis
-docker compose up -d
-
-# 3) Mobile (Expo Go SDK 57) — set LAN IP for a physical phone
-#    apps/mobile/.env → EXPO_PUBLIC_API_URL=http://YOUR_LAN_IP:8000
-npm run mobile
-
-# 4) Admin live map
-npm run admin
-# → http://localhost:3000
-```
-
-Register an admin once (or use the seeded local account if you already created it):
-
-```bash
-curl -s -X POST http://localhost:8000/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@fleetflow.dev","password":"password123","name":"Admin","role":"ADMIN"}'
-```
-
-**Demo path:** Admin → “Seed Prague demo delivery” → phone claims/starts job → GPS shares → admin marker moves. Map routes follow OSM roads via OSRM (free, no API key).
-
-## Commands
-
-```bash
-npm run mobile      # Expo
-npm run admin       # Next.js :3000
-npm run api         # docker compose up api
-npm run typecheck
-```
-
-## MVP status
-
-Done: JWT auth, deliveries, OSM/Leaflet maps + **road routing (OSRM)**, foreground GPS → Redis, WebSocket admin live map.
-
-Later (v2+): offline queue, background GPS (needs EAS build), CI/EAS polish.
-
-See `PLAN.md` and `memory-bank/progress.md`.
+See `PLAN.md` and `memory-bank/` for sprint status.

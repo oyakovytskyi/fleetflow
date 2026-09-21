@@ -1,9 +1,11 @@
 from fastapi import APIRouter, status
+import uuid
 
 from app.api.deps import AdminUser, CurrentUser, SessionDep
 from app.schemas.tracking import (
     LocationAcceptedResponse,
     LocationListResponse,
+    LocationTrailResponse,
     PostLocationRequest,
 )
 from app.services.tracking_service import TrackingService
@@ -32,3 +34,12 @@ async def list_locations(
 ) -> LocationListResponse:
     locations = await TrackingService(session).list_last_locations()
     return LocationListResponse(locations=locations)
+
+
+@router.get("/drivers/{driver_id}/trail", response_model=LocationTrailResponse)
+async def get_driver_trail(
+    driver_id: uuid.UUID,
+    _: AdminUser,
+    session: SessionDep,
+) -> LocationTrailResponse:
+    return await TrackingService(session).get_trail(driver_id)

@@ -2,30 +2,27 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-8-background`**. Sprint 8 — background GPS via TaskManager +
-EAS development-build scaffold. Expo Go stays foreground-only.
+Branch: **`feat/sprint-9-admin-depth`**. Closing the portfolio MVP loop:
+admin deliveries + assign, live trails, `npm run demo:drive` simulator.
 
 ## Recent decisions
 
-- Background location uses `expo-task-manager` + `startLocationUpdatesAsync`.
-- Active delivery id persisted for the background task (`STORAGE_KEYS.activeDeliveryId`).
-- Expo Go detected via `Constants.appOwnership === 'expo'` → skip background APIs.
-- Offline queue still receives failed background posts.
-- GitHub: global `url.git@github.com:.insteadOf` rewrites HTTPS→SSH; push with
-  `gh auth git-credential` against the HTTPS URL when SSH keys are missing.
+- Redis trail key `driver:{id}:trail` (LPUSH/LTRIM, last 120 points).
+- Admin nav: Live map | Deliveries (assign/cancel).
+- Demo driver script proves WebSocket marker motion without a physical phone.
+- MVP DoD: driver GPS → admin live map (demo:drive satisfies automated proof).
 
 ## Environment
 
 - Local: `C:\Users\exact\Desktop\reactnative`
 - GitHub: https://github.com/oyakovytskyi/fleetflow
-- Pushed: `feat/sprint-4-maps` … `feat/sprint-7-offline`
-- Current: `feat/sprint-8-background`
+- Branch: `feat/sprint-9-admin-depth`
 
 ## Next steps
 
-1. Finish Sprint 8 commit + push.
-2. Optional: `eas build --profile development` for real background GPS on device.
-3. Sprint 9 admin depth.
+1. Commit + push Sprint 9.
+2. Optional EAS background build (manual).
+3. Sprint 10: ESLint / tests / CI if desired.
 
 ## Open questions
 

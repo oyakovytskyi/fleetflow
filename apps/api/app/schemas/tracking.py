@@ -31,3 +31,14 @@ class DriverLocationSnapshot(CamelModel):
 
 class LocationListResponse(CamelModel):
     locations: list[DriverLocationSnapshot]
+
+
+class LocationTrailPoint(CamelModel):
+    lat: float
+    lng: float
+    timestamp: int
+
+
+class LocationTrailResponse(CamelModel):
+    driver_id: str
+    points: list[LocationTrailPoint]

@@ -12,6 +12,7 @@
     "mobile": "turbo run start --filter=@fleetflow/mobile",
     "admin": "turbo run dev --filter=@fleetflow/admin",
     "api": "turbo run dev --filter=@fleetflow/api",
+    "demo:drive": "node scripts/demo-drive.mjs",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",

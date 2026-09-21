@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import type { CircleMarker, Map as LeafletMap } from 'leaflet';
+import type { CircleMarker, Map as LeafletMap, Polyline } from 'leaflet';
 import L from 'leaflet';
 
 import type { DriverLocationSnapshotDto } from '@fleetflow/shared-types';
@@ -9,15 +9,22 @@ import type { DriverLocationSnapshotDto } from '@fleetflow/shared-types';
 import 'leaflet/dist/leaflet.css';
 
 const DEFAULT_CENTER: [number, number] = [50.087, 14.421];
+const TRAIL_MAX = 80;
+
+type TrailPoint = { lat: number; lng: number };
 
 interface LiveMapProps {
   locations: DriverLocationSnapshotDto[];
+  /** Optional historical trail keyed by driverId (oldest → newest). */
+  trails?: Record<string, TrailPoint[]>;
 }
 
-export function LiveMap({ locations }: LiveMapProps) {
+export function LiveMap({ locations, trails = {} }: LiveMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Map<string, CircleMarker>>(new Map());
+  const polylinesRef = useRef<Map<string, Polyline>>(new Map());
+  const liveTrailsRef = useRef<Map<string, TrailPoint[]>>(new Map());
   const [ready, setReady] = useState(false);
   const [userMoved, setUserMoved] = useState(false);
 
@@ -36,8 +43,7 @@ export function LiveMap({ locations }: LiveMapProps) {
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19,
     }).addTo(map);
 
@@ -51,6 +57,7 @@ export function LiveMap({ locations }: LiveMapProps) {
       map.remove();
       mapRef.current = null;
       markersRef.current.clear();
+      polylinesRef.current.clear();
     };
   }, []);
 
@@ -79,12 +86,38 @@ export function LiveMap({ locations }: LiveMapProps) {
         markersRef.current.set(loc.driverId, marker);
         setUserMoved(false);
       }
+
+      const fromHistory = trails[loc.driverId] ?? [];
+      const live = liveTrailsRef.current.get(loc.driverId) ?? [];
+      const nextLive = [...live, { lat: loc.lat, lng: loc.lng }].slice(-TRAIL_MAX);
+      liveTrailsRef.current.set(loc.driverId, nextLive);
+
+      const merged =
+        fromHistory.length > 0
+          ? [...fromHistory, ...nextLive].slice(-TRAIL_MAX)
+          : nextLive;
+
+      const latLngs = merged.map((p) => [p.lat, p.lng] as [number, number]);
+      const line = polylinesRef.current.get(loc.driverId);
+      if (latLngs.length >= 2) {
+        if (line) {
+          line.setLatLngs(latLngs);
+        } else {
+          polylinesRef.current.set(
+            loc.driverId,
+            L.polyline(latLngs, { color: '#2f6fed', weight: 3, opacity: 0.7 }).addTo(map),
+          );
+        }
+      }
     }
 
     for (const [driverId, marker] of markersRef.current) {
       if (!seen.has(driverId)) {
         marker.remove();
         markersRef.current.delete(driverId);
+        polylinesRef.current.get(driverId)?.remove();
+        polylinesRef.current.delete(driverId);
+        liveTrailsRef.current.delete(driverId);
       }
     }
 
@@ -97,7 +130,7 @@ export function LiveMap({ locations }: LiveMapProps) {
       const bounds = L.latLngBounds(locations.map((l) => [l.lat, l.lng] as [number, number]));
       map.fitBounds(bounds.pad(0.25), { animate: true, maxZoom: 14 });
     }
-  }, [locations, ready, userMoved]);
+  }, [locations, ready, userMoved, trails]);
 
   function recenter() {
     setUserMoved(false);

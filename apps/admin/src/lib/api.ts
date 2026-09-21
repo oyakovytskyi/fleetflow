@@ -1,7 +1,12 @@
-import type { AuthResponseDto, DeliveryDto, DriverLocationSnapshotDto } from '@fleetflow/shared-types';
+import type {
+  DeliveryDto,
+  DriverLocationSnapshotDto,
+  UserDto,
+} from '@fleetflow/shared-types';
 
 import { env } from './env';
 import { clearSession, getAccessToken, saveSession, type StoredUser } from './auth';
+import type { AuthResponseDto } from '@fleetflow/shared-types';
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
@@ -56,7 +61,30 @@ export async function createDelivery(input: {
   });
 }
 
+export async function assignDelivery(deliveryId: string, driverId: string): Promise<DeliveryDto> {
+  return request<DeliveryDto>(`/deliveries/${deliveryId}/assign`, {
+    method: 'POST',
+    body: JSON.stringify({ driverId }),
+  });
+}
+
+export async function cancelDelivery(deliveryId: string): Promise<DeliveryDto> {
+  return request<DeliveryDto>(`/deliveries/${deliveryId}/cancel`, {
+    method: 'POST',
+  });
+}
+
+export async function fetchDrivers(): Promise<UserDto[]> {
+  return request<UserDto[]>('/users/drivers');
+}
+
 export async function fetchLocations(): Promise<DriverLocationSnapshotDto[]> {
   const data = await request<{ locations: DriverLocationSnapshotDto[] }>('/tracking/locations');
   return data.locations;
+}
+
+export async function fetchDriverTrail(
+  driverId: string,
+): Promise<{ driverId: string; points: { lat: number; lng: number; timestamp: number }[] }> {
+  return request(`/tracking/drivers/${driverId}/trail`);
 }
