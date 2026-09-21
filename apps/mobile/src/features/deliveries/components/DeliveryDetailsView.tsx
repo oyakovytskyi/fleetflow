@@ -30,7 +30,7 @@ export function DeliveryDetailsView({ delivery }: Props) {
   const claim = useClaimDelivery();
   const start = useStartDelivery();
   const complete = useCompleteDelivery();
-  const { startTracking, stopTracking } = useDeliveryTracking();
+  const { startTracking, stopTracking, backgroundMode, canUseBackground } = useDeliveryTracking();
   const [error, setError] = useState<string | null>(null);
   const resumeAttemptedFor = useRef<string | null>(null);
 
@@ -61,6 +61,16 @@ export function DeliveryDetailsView({ delivery }: Props) {
     router.push('/(tabs)/map');
   }
 
+  const trackingLabel = !isTracking
+    ? 'GPS sharing off'
+    : backgroundMode === 'background'
+      ? 'GPS sharing on (background)'
+      : backgroundMode === 'denied'
+        ? 'GPS sharing on (foreground only — background permission denied)'
+        : canUseBackground
+          ? 'GPS sharing on (foreground)'
+          : 'GPS sharing on (Expo Go — foreground only; use an EAS build for background)';
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{delivery.title}</Text>
@@ -70,7 +80,7 @@ export function DeliveryDetailsView({ delivery }: Props) {
 
       {delivery.status === 'IN_PROGRESS' && isMine ? (
         <Text style={[styles.tracking, { color: isTracking ? success : muted }]}>
-          {isTracking ? 'GPS sharing on' : 'GPS sharing off'}
+          {trackingLabel}
         </Text>
       ) : null}
 

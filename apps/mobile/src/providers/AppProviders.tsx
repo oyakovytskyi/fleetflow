@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import { useRealtimeSocket } from '@/src/features/tracking/hooks/useRealtimeSocket';
 import { useLocationQueueFlush } from '@/src/features/tracking/hooks/useLocationQueueFlush';
 import { useNetworkStatus } from '@/src/features/tracking/hooks/useNetworkStatus';
+// Side-effect: registers TaskManager.defineTask for background GPS.
+import '@/src/features/tracking/backgroundLocation';
 import { queryClient } from '@/src/services/queryClient';
 import { setSessionExpiredHandler } from '@/src/services/apiClient';
 import { store } from '@/src/store';

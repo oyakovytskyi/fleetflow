@@ -1,5 +1,10 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
+import {
+  canUseBackgroundLocation,
+  startBackgroundLocation,
+  stopBackgroundLocation,
+} from '@/src/features/tracking/backgroundLocation';
 import { postLocation } from '@/src/features/tracking/api';
 import {
   isWatchingLocation,
@@ -17,9 +22,11 @@ import {
   trackingStopped,
 } from '@/src/store/slices/trackingSlice';
 
+export type BackgroundTrackingMode = 'foreground-only' | 'background' | 'denied';
+
 /**
- * Starts/stops foreground GPS and posts samples to the API while a delivery
- * is in progress. Offline / failed posts go into the AsyncStorage queue.
+ * Starts/stops GPS for an active delivery.
+ * Prefers background updates on EAS/dev builds; Expo Go stays foreground-only.
  */
 export function useDeliveryTracking() {
   const dispatch = useAppDispatch();
@@ -28,9 +35,13 @@ export function useDeliveryTracking() {
   const deliveryIdRef = useRef<string | null>(null);
   const onlineRef = useRef(isOnline);
   onlineRef.current = isOnline;
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundTrackingMode>(
+    canUseBackgroundLocation() ? 'foreground-only' : 'foreground-only',
+  );
 
   const stopTracking = useCallback(async () => {
     deliveryIdRef.current = null;
+    await stopBackgroundLocation();
     await stopLocationWatch();
     dispatch(trackingStopped());
   }, [dispatch]);
@@ -41,6 +52,17 @@ export function useDeliveryTracking() {
       dispatch(trackingStarted(deliveryId));
 
       try {
+        const bg = await startBackgroundLocation(deliveryId);
+        if (bg === 'started') {
+          setBackgroundMode('background');
+          // Still run a light foreground watch so the map "You" marker updates
+          // while the app is open; background task covers backgrounded state.
+        } else if (bg === 'denied') {
+          setBackgroundMode('denied');
+        } else {
+          setBackgroundMode('foreground-only');
+        }
+
         await startLocationWatch((sample) => {
           dispatch(locationReceived(sample));
 
@@ -60,6 +82,7 @@ export function useDeliveryTracking() {
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Could not start GPS tracking.';
+        await stopBackgroundLocation();
         await stopLocationWatch();
         dispatch(trackingFailed(message));
         throw err;
@@ -71,6 +94,8 @@ export function useDeliveryTracking() {
   return {
     isTracking,
     isWatching: isWatchingLocation(),
+    backgroundMode,
+    canUseBackground: canUseBackgroundLocation(),
     startTracking,
     stopTracking,
   };

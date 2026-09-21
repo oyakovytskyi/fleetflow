@@ -18,6 +18,8 @@ export const STORAGE_KEYS = {
   accessToken: 'fleetflow.access_token',
   refreshToken: 'fleetflow.refresh_token',
   locationQueue: 'fleetflow.location_queue',
+  /** Read by the background location TaskManager task. */
+  activeDeliveryId: 'fleetflow.active_delivery_id',
 } as const;
 
 export const API_PATHS = {

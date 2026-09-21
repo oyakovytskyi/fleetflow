@@ -1,8 +1,8 @@
 # Mobile app (Expo)
 
-FleetFlow driver app — Expo Router + TypeScript.
+FleetFlow driver app — Expo Router + TypeScript (SDK 57).
 
-## Run
+## Run (Expo Go)
 
 From monorepo root:
 
@@ -11,29 +11,27 @@ npm install
 npm run mobile
 ```
 
-Or:
+Foreground GPS, maps, WS, and offline queue work in **Expo Go**.
+
+## Background GPS (Sprint 8)
+
+Background location requires a **development build** (not Expo Go):
 
 ```bash
 cd apps/mobile
-npx expo start
+npx eas-cli login
+npx eas build --profile development --platform android
+# install the APK, then:
+npx expo start --dev-client
 ```
+
+See `eas.json` profiles: `development` / `preview` / `production`.
 
 ## Layout
 
 ```
 app/                 # Expo Router screens (thin)
-  (tabs)/            # Home, Deliveries, Map, Profile
-src/
-  features/          # auth, deliveries, tracking, map, profile
-  hooks/
-  services/
-  store/
-  types/
-  constants/
-components/          # Expo template UI helpers (Themed, etc.)
-constants/           # Colors theme tokens
+src/features/        # auth, deliveries, tracking, map
+src/services/        # api, websocket, location queue, notifications
+src/store/           # Redux slices
 ```
-
-## Status
-
-Scaffold only — Redux, TanStack Query, maps, and GPS come in later Sprint 1–5 commits.
