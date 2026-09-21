@@ -14,17 +14,20 @@ React Native (Expo) ──REST/WS──▶ FastAPI ──▶ PostgreSQL
 Next.js Admin ◀──────────WS───────────────┘
 ```
 
+Maps: Leaflet + Carto/OSM tiles; pickup/driver→destination geometry via public OSRM (OSM roads).
+
 ## Status (2026-09-21)
 
-**Sprint 5 foreground tracking in progress on `feat/sprint-5-tracking`.**
+**Sprint 6 committed on `feat/sprint-6-realtime`.**  
+Next: optional push + device E2E, then Sprint 7 offline.
 
 | Sprint | Focus | Status |
 | --- | --- | --- |
 | 0–3 | Bootstrap → deliveries | Done |
 | 4 | Maps (Leaflet/OSM) | Done (`feat/sprint-4-maps`) |
-| 5 | Foreground GPS tracking | **In progress** |
-| 6 | WebSocket + admin live map | Pending |
-| 7–10 | Offline / background / polish | Later |
+| 5 | Foreground GPS tracking | Done (`feat/sprint-5-tracking`) |
+| 6 | WebSocket + admin live map + OSRM routes | **Done** (commit on branch; push optional) |
+| 7–10 | Offline / background / polish | **Next** |
 
 ## Phase 0 — Bootstrap
 
@@ -32,7 +35,7 @@ Next.js Admin ◀──────────WS──────────�
 - [x] Folder skeleton + shared-types stubs
 - [x] Git init
 - [x] Root tooling (Turborepo + npm workspaces, shared tsconfig preset)
-- [x] Expo + FastAPI generated (Next.js admin still pending)
+- [x] Expo + FastAPI generated; Next.js admin scaffolded (Sprint 6)
 
 ## Sprint 1 — Foundation (mobile + monorepo)
 
@@ -59,10 +62,10 @@ Next.js Admin ◀──────────WS──────────�
 
 1. [x] Free OSM map via Leaflet WebView (no Google/Mapbox API key)
 2. [x] Current location, driver/pickup/destination markers
-3. [x] Polyline + camera helpers (fit bounds)
+3. [x] Polyline + camera helpers (fit bounds) — later upgraded to OSRM road geometry
 4. [x] Wire map tab to active / selected delivery
 
-## Sprint 5 — Foreground tracking ← current
+## Sprint 5 — Foreground tracking
 
 1. [x] Location service (`watchPositionAsync`)
 2. [x] `POST /tracking/location` (Redis last-known + pub/sub publish)
@@ -71,10 +74,17 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Sprint 6 — Realtime + admin MVP
 
-1. [ ] WebSocket backend + `driver.location.updated`
-2. [ ] Mobile WS client + reconnect backoff
-3. [ ] Scaffold Next.js admin + login + live map markers
-4. [ ] Basic dashboard counts
+1. [x] WebSocket backend + Redis fan-out (`/ws/live`, `driver.location.updated`)
+2. [x] Mobile WS client + reconnect backoff (DRIVER + ADMIN)
+3. [x] Scaffold Next.js admin + login + live OSM map markers
+4. [x] Basic dashboard counts + seed demo delivery
+5. [x] Mobile OSRM road routing (distance / ETA; driver→dest when tracking)
+6. [x] Admin polish (freshness, responsive layout, recenter, README runbook)
+7. [x] Delivery lifecycle WS events (`created` / `assigned` / `started` / `completed` / `cancelled`)
+8. [x] Local notifications (mobile) + browser notifications + admin activity feed
+9. [ ] End-to-end: phone GPS → admin marker moves
+10. [x] Commit `feat/sprint-6-realtime`
+11. [ ] Push feature branches when GitHub auth works
 
 ## Sprint 7 — Offline (v2)
 
@@ -118,3 +128,4 @@ Driver can log in, start a delivery, share GPS; admin sees the marker move over 
 
 - Local path: `C:\Users\exact\Desktop\reactnative`
 - GitHub: https://github.com/oyakovytskyi/fleetflow
+- Current branch: `feat/sprint-6-realtime` (Sprint 6 + polish; largely uncommitted)

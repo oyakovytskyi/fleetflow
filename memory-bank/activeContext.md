@@ -2,28 +2,29 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-5-tracking`**. Implementing Sprint 5 — foreground GPS
-(`watchPositionAsync` → `POST /tracking/location` → Redis last-known + map live marker).
+Branch: **`feat/sprint-6-realtime`** — Sprint 6 is **committed** locally.
+Next planned work: **Sprint 7 offline** (NetInfo + location queue + flush), then push when ready.
 
 ## Recent decisions
 
-- Map uses free Leaflet + Carto/OSM WebView (no Google key).
-- Theme tokens: brand tint in light/dark; `muted` / `border` / `surface` / `danger` / `success` / `onTint`.
-- Tracking starts when driver starts a delivery (and resumes if already `IN_PROGRESS`).
-- Location posts are best-effort in foreground; offline queue is Sprint 7.
+- Map: Leaflet + OSM; **OSRM** road routes (driver→dest when tracking).
+- Admin map tiles: plain OSM (Carto free tier started requiring an API key).
+- WS `/ws/live` for DRIVER + ADMIN; location frames admin-only; delivery.* filtered.
+- Notifications: local (`expo-notifications`) + browser Notification API; remote push is v2.
+- Dev admin: `admin@fleetflow.dev` / `password123`.
 
 ## Environment
 
 - Local: `C:\Users\exact\Desktop\reactnative`
 - GitHub: https://github.com/oyakovytskyi/fleetflow
-- Branches: `feat/sprint-4-maps`, `feat/sprint-5-tracking` (current)
+- Branch: `feat/sprint-6-realtime` (ahead of remote if tracking)
 
 ## Next steps
 
-1. Finish tracking API + mobile wiring; typecheck; commit.
-2. Verify: start delivery → GPS on → map “You” marker moves / API accepts posts.
-3. Sprint 6: WebSocket fan-out + admin live map.
+1. Push `feat/sprint-6-realtime` (and earlier feature branches if needed).
+2. Optional E2E: seed → claim/start → admin marker.
+3. Sprint 7: network detection + offline location queue + flush on reconnect.
 
 ## Open questions
 
-- Keep local folder name `reactnative` vs rename to `fleetflow`?
+- Rename folder `reactnative` → `fleetflow`?

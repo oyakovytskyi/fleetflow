@@ -33,7 +33,7 @@ extend `@fleetflow/config/tsconfig.base.json`; `apps/mobile` extends
 | Client state | Redux Toolkit | Interview alignment (Redux/Zustand); predictable slices |
 | Server state | TanStack Query | Cache/list/detail for REST; Redux stays UI/session/tracking |
 | HTTP | Axios + interceptors | Token refresh / retry on 401 |
-| Maps | `react-native-maps` | Markers, polylines, camera — vacancy checklist |
+| Maps | Leaflet + Carto/OSM + OSRM road routes | Free tiles/routing; no Google/Mapbox key |
 | Secure tokens | `expo-secure-store` | Access + refresh tokens only |
 | Realtime | FastAPI WebSocket + Redis Pub/Sub | Scale admin fan-out; interview-ready |
 | Persistence | PostgreSQL | Deliveries, users, location history |
@@ -89,13 +89,19 @@ Rules:
 
 ## WebSocket contract
 
-Event: `driver.location.updated`
+Endpoint: `GET /ws/live?token=<accessJWT>` (DRIVER or ADMIN).
 
-```json
-{ "driverId": "123", "lat": 50.087, "lng": 14.421, "timestamp": 1720000000 }
-```
+| Event | Audience | Notes |
+| --- | --- | --- |
+| `tracking.snapshot` | ADMIN | Sent on connect |
+| `driver.location.updated` | ADMIN | Redis → LiveHub |
+| `delivery.created` | ADMIN + DRIVER | New open job |
+| `delivery.assigned` | ADMIN + DRIVER | Claim/assign |
+| `delivery.started` / `.completed` / `.cancelled` | ADMIN + owning driver | Lifecycle |
+| `ping` | all | Keepalive |
 
-Client `WebSocketManager`: `connect`, `disconnect`, `subscribe`, `send`, exponential backoff (1s→16s cap).
+Mobile shows **local** notifications (`expo-notifications`) for relevant delivery events.
+Admin uses the browser Notification API + an activity feed. Remote FCM/APNs push is v2.
 
 ## Backend layering
 
