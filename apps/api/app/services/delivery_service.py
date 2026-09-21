@@ -15,6 +15,7 @@ from app.models.enums import DeliveryStatus, UserRole
 from app.models.user import User
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.user_repository import UserRepository
+from app.services.realtime_events import publish_delivery_event
 
 # Legal edges of the delivery status machine.
 ALLOWED_TRANSITIONS: dict[DeliveryStatus, set[DeliveryStatus]] = {
@@ -66,6 +67,7 @@ class DeliveryService:
         )
         await self._session.commit()
         await self._session.refresh(delivery)
+        await publish_delivery_event("delivery.created", delivery)
         return delivery
 
     async def assign(self, delivery_id: uuid.UUID, driver_id: uuid.UUID) -> Delivery:
@@ -88,6 +90,7 @@ class DeliveryService:
         self._apply_status(delivery, DeliveryStatus.ASSIGNED)
         await self._session.commit()
         await self._session.refresh(delivery)
+        await publish_delivery_event("delivery.assigned", delivery)
         return delivery
 
     async def claim(self, actor: User, delivery_id: uuid.UUID) -> Delivery:
@@ -103,6 +106,7 @@ class DeliveryService:
         self._apply_status(delivery, DeliveryStatus.ASSIGNED)
         await self._session.commit()
         await self._session.refresh(delivery)
+        await publish_delivery_event("delivery.assigned", delivery)
         return delivery
 
     async def start(self, actor: User, delivery_id: uuid.UUID) -> Delivery:
@@ -112,6 +116,7 @@ class DeliveryService:
         self._apply_status(delivery, DeliveryStatus.IN_PROGRESS)
         await self._session.commit()
         await self._session.refresh(delivery)
+        await publish_delivery_event("delivery.started", delivery)
         return delivery
 
     async def complete(self, actor: User, delivery_id: uuid.UUID) -> Delivery:
@@ -121,6 +126,7 @@ class DeliveryService:
         self._apply_status(delivery, DeliveryStatus.COMPLETED)
         await self._session.commit()
         await self._session.refresh(delivery)
+        await publish_delivery_event("delivery.completed", delivery)
         return delivery
 
     async def cancel(self, actor: User, delivery_id: uuid.UUID) -> Delivery:
@@ -136,6 +142,7 @@ class DeliveryService:
         self._apply_status(delivery, DeliveryStatus.CANCELLED)
         await self._session.commit()
         await self._session.refresh(delivery)
+        await publish_delivery_event("delivery.cancelled", delivery)
         return delivery
 
     async def _require_delivery(self, delivery_id: uuid.UUID) -> Delivery:

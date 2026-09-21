@@ -19,3 +19,15 @@ class PostLocationRequest(CamelModel):
 class LocationAcceptedResponse(CamelModel):
     ok: bool = True
     received_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class DriverLocationSnapshot(CamelModel):
+    driver_id: str
+    delivery_id: str | None = None
+    lat: float
+    lng: float
+    timestamp: int
+
+
+class LocationListResponse(CamelModel):
+    locations: list[DriverLocationSnapshot]

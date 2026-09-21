@@ -17,11 +17,17 @@ import app.models  # noqa: F401
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    from app.services.live_hub import live_hub
+
     # MVP shortcut: schema is created on boot. Replace with Alembic before v1.
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
-    yield
-    await engine.dispose()
+    await live_hub.start()
+    try:
+        yield
+    finally:
+        await live_hub.stop()
+        await engine.dispose()
 
 
 def create_app() -> FastAPI:

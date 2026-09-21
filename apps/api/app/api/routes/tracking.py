@@ -1,7 +1,11 @@
 from fastapi import APIRouter, status
 
-from app.api.deps import CurrentUser, SessionDep
-from app.schemas.tracking import LocationAcceptedResponse, PostLocationRequest
+from app.api.deps import AdminUser, CurrentUser, SessionDep
+from app.schemas.tracking import (
+    LocationAcceptedResponse,
+    LocationListResponse,
+    PostLocationRequest,
+)
 from app.services.tracking_service import TrackingService
 
 router = APIRouter(prefix="/tracking", tags=["tracking"])
@@ -19,3 +23,12 @@ async def post_location(
 ) -> LocationAcceptedResponse:
     await TrackingService(session).ingest_location(current_user, payload)
     return LocationAcceptedResponse()
+
+
+@router.get("/locations", response_model=LocationListResponse)
+async def list_locations(
+    _: AdminUser,
+    session: SessionDep,
+) -> LocationListResponse:
+    locations = await TrackingService(session).list_last_locations()
+    return LocationListResponse(locations=locations)

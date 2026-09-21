@@ -8,7 +8,8 @@ from app.db.redis import get_redis
 from app.models.enums import DeliveryStatus, UserRole
 from app.models.user import User
 from app.repositories.delivery_repository import DeliveryRepository
-from app.schemas.tracking import PostLocationRequest
+from app.schemas.tracking import DriverLocationSnapshot, PostLocationRequest
+from app.services.realtime_events import publish_location_event
 
 
 class TrackingService:
@@ -40,20 +41,20 @@ class TrackingService:
             "receivedAt": datetime.now(UTC).isoformat(),
         }
 
-        # Hot last-known location for admin map (Sprint 6 will pub/sub this).
         key = f"driver:{actor.id}:location"
         await self._redis.set(key, json.dumps(sample), ex=60 * 60 * 6)
-        await self._redis.publish(
-            "driver.location.updated",
-            json.dumps(
-                {
-                    "type": "driver.location.updated",
-                    "payload": {
-                        "driverId": str(actor.id),
-                        "lat": payload.lat,
-                        "lng": payload.lng,
-                        "timestamp": payload.timestamp,
-                    },
-                }
-            ),
+        await publish_location_event(
+            {
+                "driverId": str(actor.id),
+                "deliveryId": str(payload.delivery_id),
+                "lat": payload.lat,
+                "lng": payload.lng,
+                "timestamp": payload.timestamp,
+            }
         )
+
+    async def list_last_locations(self) -> list[DriverLocationSnapshot]:
+        from app.services.live_hub import live_hub
+
+        raw = await live_hub.snapshot_locations()
+        return [DriverLocationSnapshot.model_validate(item) for item in raw]
