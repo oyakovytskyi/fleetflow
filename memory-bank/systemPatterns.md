@@ -77,8 +77,14 @@ Rules:
 
 - `auth` — user, tokens hydrated flag
 - `deliveries` — UI selection / optimistic local flags (lists from Query)
-- `tracking` — `currentLocation`, `isTracking`, `activeDeliveryId`, `connectionStatus`, `pendingLocations`
-- `network` — online/offline
+- `tracking` — `currentLocation`, `isTracking`, `activeDeliveryId`, `connectionStatus`, `pendingCount`
+- `network` — online/offline (NetInfo)
+
+## Offline location queue
+
+GPS samples that fail to POST (or are taken while offline) go into AsyncStorage
+(`STORAGE_KEYS.locationQueue`, max 200). `useLocationQueueFlush` drains FIFO when
+`network.isOnline` becomes true.
 
 ## Token refresh contract (mobile)
 

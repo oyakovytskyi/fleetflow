@@ -41,12 +41,15 @@
 - [x] Root README runbook updated for full stack demo
 - [x] Delivery lifecycle WS events + role-filtered fan-out
 - [x] Local notifications (mobile) + browser notifications + admin activity feed
+- [x] Sprint 6 committed on `feat/sprint-6-realtime`
+- [x] NetInfo → Redux online/offline
+- [x] AsyncStorage GPS queue + flush on reconnect
 
 ## In progress / blocked on human
 
 - [ ] Device + admin E2E smoke (phone GPS → admin marker)
-- [ ] Commit Sprint 6 + polish on `feat/sprint-6-realtime`
-- [ ] Push feature branches (`feat/sprint-4-maps` … `feat/sprint-6-realtime`)
+- [ ] Commit Sprint 7 on `feat/sprint-7-offline`
+- [ ] Push feature branches when SSH/auth available
 - [ ] ESLint config so the turbo `lint` task does real work
 
 ## Remaining (high level)

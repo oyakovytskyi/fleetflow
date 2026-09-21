@@ -2,28 +2,26 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-6-realtime`** — Sprint 6 is **committed** locally.
-Next planned work: **Sprint 7 offline** (NetInfo + location queue + flush), then push when ready.
+Branch: **`feat/sprint-7-offline`**. Implementing Sprint 7 — NetInfo + AsyncStorage
+location queue + flush on reconnect.
 
 ## Recent decisions
 
-- Map: Leaflet + OSM; **OSRM** road routes (driver→dest when tracking).
-- Admin map tiles: plain OSM (Carto free tier started requiring an API key).
-- WS `/ws/live` for DRIVER + ADMIN; location frames admin-only; delivery.* filtered.
-- Notifications: local (`expo-notifications`) + browser Notification API; remote push is v2.
-- Dev admin: `admin@fleetflow.dev` / `password123`.
+- Offline GPS samples persist in AsyncStorage (cap 200); Redux only mirrors `pendingCount`.
+- Flush is FIFO; stop on first failed POST and retry on next online transition.
+- NetInfo: online when `isConnected && isInternetReachable !== false`.
 
 ## Environment
 
 - Local: `C:\Users\exact\Desktop\reactnative`
 - GitHub: https://github.com/oyakovytskyi/fleetflow
-- Branch: `feat/sprint-6-realtime` (ahead of remote if tracking)
+- Branches: `feat/sprint-6-realtime` (committed), `feat/sprint-7-offline` (current)
 
 ## Next steps
 
-1. Push `feat/sprint-6-realtime` (and earlier feature branches if needed).
-2. Optional E2E: seed → claim/start → admin marker.
-3. Sprint 7: network detection + offline location queue + flush on reconnect.
+1. Finish Sprint 7 wiring; typecheck; commit.
+2. Push feature branches when GitHub auth works.
+3. Sprint 8 background GPS needs EAS (not Expo Go).
 
 ## Open questions
 

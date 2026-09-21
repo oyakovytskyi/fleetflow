@@ -18,16 +18,17 @@ Maps: Leaflet + Carto/OSM tiles; pickup/driver→destination geometry via public
 
 ## Status (2026-09-21)
 
-**Sprint 6 committed on `feat/sprint-6-realtime`.**  
-Next: optional push + device E2E, then Sprint 7 offline.
+**Sprint 7 offline queue on `feat/sprint-7-offline`.**  
+Sprint 6 is committed on `feat/sprint-6-realtime`.
 
 | Sprint | Focus | Status |
 | --- | --- | --- |
 | 0–3 | Bootstrap → deliveries | Done |
 | 4 | Maps (Leaflet/OSM) | Done (`feat/sprint-4-maps`) |
 | 5 | Foreground GPS tracking | Done (`feat/sprint-5-tracking`) |
-| 6 | WebSocket + admin live map + OSRM routes | **Done** (commit on branch; push optional) |
-| 7–10 | Offline / background / polish | **Next** |
+| 6 | WebSocket + admin live map + OSRM routes | Done (`feat/sprint-6-realtime`) |
+| 7 | Offline location queue | **In progress** |
+| 8–10 | Background / admin depth / polish | Later |
 
 ## Phase 0 — Bootstrap
 
@@ -86,11 +87,12 @@ Next: optional push + device E2E, then Sprint 7 offline.
 10. [x] Commit `feat/sprint-6-realtime`
 11. [ ] Push feature branches when GitHub auth works
 
-## Sprint 7 — Offline (v2)
+## Sprint 7 — Offline (v2) ← current
 
-1. [ ] Network detection
-2. [ ] Location queue in AsyncStorage
-3. [ ] Flush on reconnect
+1. [x] Network detection (NetInfo → Redux)
+2. [x] Location queue in AsyncStorage (cap 200)
+3. [x] Flush on reconnect (FIFO)
+4. [ ] Commit `feat/sprint-7-offline`
 
 ## Sprint 8 — Background GPS (v2)
 
