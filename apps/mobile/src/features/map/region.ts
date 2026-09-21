@@ -34,7 +34,7 @@ export function destinationCoord(delivery: DeliveryDto): LatLng {
   };
 }
 
-/** Straight-line route preview until turn-by-turn routing is added. */
+/** Used to frame the camera before the road route geometry arrives. */
 export function deliveryRoute(delivery: DeliveryDto): LatLng[] {
   return [pickupCoord(delivery), destinationCoord(delivery)];
 }

@@ -22,7 +22,7 @@ type Props = {
 
 /**
  * Free OpenStreetMap basemap via Leaflet (Carto tiles) inside a WebView.
- * No Google/Mapbox API key — works in Expo Go on iOS and Android.
+ * Pickup→destination follows OSM roads via the public OSRM demo (no API key).
  */
 export function DeliveryMapView({ delivery, driverLocation }: Props) {
   const scheme = useColorScheme() ?? 'light';
@@ -61,8 +61,10 @@ export function DeliveryMapView({ delivery, driverLocation }: Props) {
         javaScriptEnabled
         domStorageEnabled
         setSupportMultipleWindows={false}
-        // Phone must reach the tile CDN (needs network).
         allowsInlineMediaPlayback
+        mixedContentMode="always"
+        // OSRM + tile CDNs need network from the WebView.
+        allowFileAccess
       />
     </View>
   );

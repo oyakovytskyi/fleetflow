@@ -3,6 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { Provider } from 'react-redux';
 
+import { useRealtimeSocket } from '@/src/features/tracking/hooks/useRealtimeSocket';
 import { queryClient } from '@/src/services/queryClient';
 import { setSessionExpiredHandler } from '@/src/services/apiClient';
 import { store } from '@/src/store';
@@ -31,13 +32,20 @@ function useSessionExpiry() {
   }, []);
 }
 
+function RealtimeBridge({ children }: { children: ReactNode }) {
+  useRealtimeSocket();
+  return children;
+}
+
 export function AppProviders({ children }: { children: ReactNode }) {
   useAppStateFocus();
   useSessionExpiry();
 
   return (
     <Provider store={store}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <RealtimeBridge>{children}</RealtimeBridge>
+      </QueryClientProvider>
     </Provider>
   );
 }
