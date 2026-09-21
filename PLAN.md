@@ -16,7 +16,7 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Status (2026-09-21)
 
-**Done through Sprint 3.** Next up: Sprint 4 (maps).
+**Sprint 4 maps implemented on `feat/sprint-4-maps`.** Next: Sprint 5 (foreground GPS).
 
 | Sprint | Focus | Status |
 | --- | --- | --- |
@@ -24,8 +24,8 @@ Next.js Admin ◀──────────WS──────────�
 | 1 | Mobile foundation (RTK + Query + env) | Done |
 | 2 | FastAPI + JWT + Docker | Done |
 | 3 | Deliveries API + mobile auth/list/detail | Done |
-| 4 | Maps | **Next** |
-| 5 | Foreground GPS tracking | Pending |
+| 4 | Maps | **Done (this branch)** |
+| 5 | Foreground GPS tracking | **Next** |
 | 6 | WebSocket + admin live map | Pending |
 | 7–8 | Offline + background GPS (v2) | Later |
 | 9–10 | Admin depth + polish (v2/v3) | Later |
@@ -59,14 +59,14 @@ Next.js Admin ◀──────────WS──────────�
 2. [x] Mobile login/register + SecureStore/AsyncStorage fallback + Axios refresh
 3. [x] Deliveries list + detail screens
 
-## Sprint 4 — Maps ← current
+## Sprint 4 — Maps
 
-1. [ ] react-native-maps setup (Expo Go compatible)
-2. [ ] Current location, driver/pickup/destination markers
-3. [ ] Polyline + camera helpers
-4. [ ] Wire map tab to active / selected delivery
+1. [x] react-native-maps setup (Expo Go compatible)
+2. [x] Current location, driver/pickup/destination markers
+3. [x] Polyline + camera helpers
+4. [x] Wire map tab to active / selected delivery
 
-## Sprint 5 — Foreground tracking
+## Sprint 5 — Foreground tracking ← current
 
 1. [ ] Location service (`watchPositionAsync`)
 2. [ ] `POST /tracking/location`

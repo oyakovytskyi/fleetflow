@@ -2,29 +2,27 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-4-maps`**. Implementing Sprint 4 — react-native-maps on the Map tab
-(markers, polyline, camera helpers, wire to delivery).
+Branch: **`feat/sprint-4-maps`**. Sprint 4 map tab is implemented (markers, polyline, picker,
+current location, View on map from delivery detail). Typecheck green.
 
 ## Recent decisions
 
-- Work continues on feature branches; update `PLAN.md` + memory bank after each task.
-- Maps must run in Expo Go SDK 57 (no custom native code yet).
-- Deliveries status machine: `PENDING → ASSIGNED → IN_PROGRESS → COMPLETED | CANCELLED`.
-- Token storage: SecureStore with AsyncStorage fallback.
+- Feature branch workflow: `feat/sprint-4-maps` off `main`; update PLAN + memory bank after each task.
+- Map prefers Redux `deliveries.selectedDeliveryId`, then tracking `activeDeliveryId`, then smart pick.
+- Straight-line polyline only (no directions API yet).
+- `expo-location` foreground permission for “You” marker.
 
 ## Environment
 
 - Local: `C:\Users\exact\Desktop\reactnative`
-- GitHub: https://github.com/oyakovytskyi/fleetflow (`main` + `feat/sprint-4-maps`)
-- API: `docker compose up` → `:8000`
-- Mobile: Expo Go SDK 57
+- GitHub: https://github.com/oyakovytskyi/fleetflow
+- Branch: `feat/sprint-4-maps`
 
-## Next steps (this branch)
+## Next steps
 
-1. Install `react-native-maps` + `expo-location`; permissions in `app.json`.
-2. Map feature helpers (region, markers, polyline).
-3. Wire Map tab to selected / active delivery.
-4. Typecheck → commit → update PLAN/progress.
+1. Push branch / open PR when ready.
+2. Sprint 5: foreground GPS watch + `POST /tracking/location`.
+3. Scaffold Next.js admin (Sprint 6).
 
 ## Open questions
 

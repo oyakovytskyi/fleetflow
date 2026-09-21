@@ -28,11 +28,13 @@
 - [x] Profile screen shows user + sign out
 - [x] Delivery model + endpoints (create/list/get/claim/start/complete/cancel/assign)
 - [x] Mobile deliveries list + detail with claim/start/complete actions
+- [x] Sprint 4 maps: react-native-maps + expo-location, markers, polyline, picker
+- [x] Deliveries UI slice (`selectedDeliveryId`) + View on map from detail
 
 ## In progress
 
-- [ ] Verify full driver flow on physical device (Expo Go)
-- [ ] Sprint 4: maps
+- [ ] Push / merge `feat/sprint-4-maps`
+- [ ] Sprint 5: foreground GPS tracking
 - [ ] Scaffold Next.js admin
 - [ ] ESLint config so the turbo `lint` task does real work
 
@@ -43,7 +45,7 @@
 - [x] Auth API (JWT + refresh rotation)
 - [x] Auth mobile UI (SecureStore/AsyncStorage + refresh interceptor)
 - [x] Deliveries API + mobile list/detail
-- [ ] Map (driver/pickup/destination + polyline)
+- [x] Map (driver/pickup/destination + polyline)
 - [ ] Foreground GPS → POST/WS location
 - [ ] Admin live map
 
