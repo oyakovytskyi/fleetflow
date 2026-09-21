@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 import {
   defaultRegion,
   deliveryRoute,
@@ -19,6 +21,10 @@ type Props = {
 
 export function DeliveryMapView({ delivery, driverLocation }: Props) {
   const mapRef = useRef<MapView>(null);
+  const scheme = useColorScheme() ?? 'light';
+  const tint = Colors[scheme].tint;
+  const danger = Colors[scheme].danger;
+  const success = Colors[scheme].success;
 
   const route = useMemo(() => (delivery ? deliveryRoute(delivery) : []), [delivery]);
 
@@ -48,20 +54,20 @@ export function DeliveryMapView({ delivery, driverLocation }: Props) {
               coordinate={pickupCoord(delivery)}
               title="Pickup"
               description={delivery.title}
-              pinColor="#2f95dc"
+              pinColor={tint}
             />
             <Marker
               coordinate={destinationCoord(delivery)}
               title="Destination"
               description={delivery.title}
-              pinColor="#d92d20"
+              pinColor={danger}
             />
-            <Polyline coordinates={route} strokeColor="#2f95dc" strokeWidth={4} />
+            <Polyline coordinates={route} strokeColor={tint} strokeWidth={4} />
           </>
         ) : null}
 
         {driverLocation ? (
-          <Marker coordinate={driverLocation} title="You" pinColor="#12b76a" />
+          <Marker coordinate={driverLocation} title="You" pinColor={success} />
         ) : null}
       </MapView>
     </View>

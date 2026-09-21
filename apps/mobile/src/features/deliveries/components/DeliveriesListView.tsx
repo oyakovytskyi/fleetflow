@@ -1,17 +1,20 @@
 import { router, type Href } from 'expo-router';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import { DeliveryListItem } from '@/src/features/deliveries/components/DeliveryListItem';
 import { useDeliveries } from '@/src/features/deliveries/hooks/useDeliveries';
 
 export function DeliveriesListView() {
   const { data, isLoading, isError, isRefetching, refetch, error } = useDeliveries();
+  const danger = useThemeColor({}, 'danger');
+  const tint = useThemeColor({}, 'tint');
+  const muted = useThemeColor({}, 'muted');
 
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={tint} />
       </View>
     );
   }
@@ -19,9 +22,11 @@ export function DeliveriesListView() {
   if (isError) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.error}>Could not load deliveries.</Text>
-        <Text style={styles.hint}>{error instanceof Error ? error.message : 'Try again.'}</Text>
-        <Text style={styles.link} onPress={() => void refetch()}>
+        <Text style={[styles.error, { color: danger }]}>Could not load deliveries.</Text>
+        <Text style={[styles.hint, { color: muted }]}>
+          {error instanceof Error ? error.message : 'Try again.'}
+        </Text>
+        <Text style={[styles.link, { color: tint }]} onPress={() => void refetch()}>
           Retry
         </Text>
       </View>
@@ -33,11 +38,13 @@ export function DeliveriesListView() {
       data={data ?? []}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.list}
-      refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />}
+      refreshControl={
+        <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={tint} />
+      }
       ListEmptyComponent={
         <View style={styles.centered}>
           <Text style={styles.emptyTitle}>No deliveries yet</Text>
-          <Text style={styles.hint}>
+          <Text style={[styles.hint, { color: muted }]}>
             Ask an admin to create a job, or pull to refresh after one is assigned.
           </Text>
         </View>
@@ -74,15 +81,12 @@ const styles = StyleSheet.create({
   },
   hint: {
     textAlign: 'center',
-    opacity: 0.65,
   },
   error: {
-    color: '#d92d20',
     fontWeight: '600',
   },
   link: {
     marginTop: 8,
     fontWeight: '700',
-    color: '#2f95dc',
   },
 });

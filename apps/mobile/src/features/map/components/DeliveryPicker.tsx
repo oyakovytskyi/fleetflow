@@ -1,7 +1,7 @@
 import type { DeliveryDto } from '@fleetflow/shared-types';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 
 type Props = {
   deliveries: DeliveryDto[];
@@ -10,6 +10,13 @@ type Props = {
 };
 
 export function DeliveryPicker({ deliveries, selectedId, onSelect }: Props) {
+  const tint = useThemeColor({}, 'tint');
+  const onTint = useThemeColor({}, 'onTint');
+  const surface = useThemeColor({}, 'surface');
+  const border = useThemeColor({}, 'border');
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+
   if (deliveries.length === 0) return null;
 
   return (
@@ -21,15 +28,21 @@ export function DeliveryPicker({ deliveries, selectedId, onSelect }: Props) {
             <Pressable
               key={delivery.id}
               onPress={() => onSelect(delivery.id)}
-              style={[styles.chip, selected && styles.chipSelected]}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: selected ? tint : surface,
+                  borderColor: selected ? tint : border,
+                },
+              ]}
             >
               <Text
-                style={[styles.chipText, selected && styles.chipTextSelected]}
+                style={[styles.chipText, { color: selected ? onTint : text }]}
                 numberOfLines={1}
               >
                 {delivery.title}
               </Text>
-              <Text style={[styles.chipStatus, selected && styles.chipTextSelected]}>
+              <Text style={[styles.chipStatus, { color: selected ? onTint : muted }]}>
                 {delivery.status.replaceAll('_', ' ')}
               </Text>
             </Pressable>
@@ -47,6 +60,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 2,
+    backgroundColor: 'transparent',
   },
   row: {
     paddingHorizontal: 12,
@@ -57,13 +71,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.92)',
     borderWidth: 1,
-    borderColor: '#d0d5dd',
-  },
-  chipSelected: {
-    backgroundColor: '#2f95dc',
-    borderColor: '#2f95dc',
   },
   chipText: {
     fontWeight: '700',
@@ -72,11 +80,6 @@ const styles = StyleSheet.create({
   chipStatus: {
     marginTop: 2,
     fontSize: 11,
-    opacity: 0.7,
     textTransform: 'uppercase',
-  },
-  chipTextSelected: {
-    color: '#fff',
-    opacity: 1,
   },
 });

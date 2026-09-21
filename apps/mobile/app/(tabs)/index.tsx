@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import { useAppConfig } from '@/src/hooks';
 import { useAppSelector } from '@/src/store/hooks';
 import { selectUser } from '@/src/store/slices/authSlice';
@@ -13,11 +13,12 @@ export default function HomeScreen() {
   const isOnline = useAppSelector(selectIsOnline);
   const isTracking = useAppSelector(selectIsTracking);
   const connectionStatus = useAppSelector(selectConnectionStatus);
+  const muted = useThemeColor({}, 'muted');
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{appName}</Text>
-      <Text style={styles.subtitle}>
+      <Text style={[styles.subtitle, { color: muted }]}>
         {user ? `Welcome, ${user.name}.` : 'Driver home — deliveries and tracking come next.'}
       </Text>
 
@@ -34,9 +35,10 @@ export default function HomeScreen() {
 }
 
 function StatusRow({ label, value }: { label: string; value: string }) {
+  const muted = useThemeColor({}, 'muted');
   return (
     <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={{ color: muted }}>{label}</Text>
       <Text style={styles.rowValue}>{value}</Text>
     </View>
   );
@@ -56,20 +58,18 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 12,
     textAlign: 'center',
-    opacity: 0.7,
   },
   status: {
     marginTop: 32,
     alignSelf: 'stretch',
     gap: 8,
+    backgroundColor: 'transparent',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 16,
-  },
-  rowLabel: {
-    opacity: 0.6,
+    backgroundColor: 'transparent',
   },
   rowValue: {
     fontWeight: '600',

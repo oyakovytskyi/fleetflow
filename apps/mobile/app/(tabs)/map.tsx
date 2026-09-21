@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import { useDeliveries } from '@/src/features/deliveries/hooks/useDeliveries';
 import { DeliveryMapView } from '@/src/features/map/components/DeliveryMapView';
 import { DeliveryPicker } from '@/src/features/map/components/DeliveryPicker';
@@ -20,6 +20,9 @@ export default function MapScreen() {
   const user = useAppSelector(selectUser);
   const activeDeliveryId = useAppSelector(selectActiveDeliveryId);
   const selectedFromStore = useAppSelector(selectSelectedDeliveryId);
+  const tint = useThemeColor({}, 'tint');
+  const danger = useThemeColor({}, 'danger');
+  const onTint = useThemeColor({}, 'onTint');
   const { data: deliveries = [], isLoading, isError, refetch } = useDeliveries();
 
   const [driverLocation, setDriverLocation] = useState<LatLng | null>(null);
@@ -70,7 +73,7 @@ export default function MapScreen() {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={tint} />
       </View>
     );
   }
@@ -78,8 +81,8 @@ export default function MapScreen() {
   if (isError) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.error}>Could not load deliveries for the map.</Text>
-        <Text style={styles.link} onPress={() => void refetch()}>
+        <Text style={[styles.error, { color: danger }]}>Could not load deliveries for the map.</Text>
+        <Text style={[styles.link, { color: tint }]} onPress={() => void refetch()}>
           Retry
         </Text>
       </View>
@@ -96,14 +99,16 @@ export default function MapScreen() {
       />
 
       {!selected ? (
-        <View style={styles.banner}>
-          <Text style={styles.bannerText}>No delivery selected. Claim a job to see the route.</Text>
+        <View style={[styles.banner, { backgroundColor: 'rgba(15,23,42,0.88)' }]}>
+          <Text style={[styles.bannerText, { color: onTint }]}>
+            No delivery selected. Claim a job to see the route.
+          </Text>
         </View>
       ) : null}
 
       {locationNote ? (
-        <View style={[styles.banner, styles.bannerBottom]}>
-          <Text style={styles.bannerText}>{locationNote}</Text>
+        <View style={[styles.banner, styles.bannerBottom, { backgroundColor: 'rgba(15,23,42,0.88)' }]}>
+          <Text style={[styles.bannerText, { color: onTint }]}>{locationNote}</Text>
         </View>
       ) : null}
     </View>
@@ -122,12 +127,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   error: {
-    color: '#d92d20',
     fontWeight: '600',
     textAlign: 'center',
   },
   link: {
-    color: '#2f95dc',
     fontWeight: '700',
   },
   banner: {
@@ -137,13 +140,11 @@ const styles = StyleSheet.create({
     bottom: 24,
     padding: 12,
     borderRadius: 10,
-    backgroundColor: 'rgba(15,23,42,0.88)',
   },
   bannerBottom: {
     bottom: 80,
   },
   bannerText: {
-    color: '#fff',
     textAlign: 'center',
     fontSize: 13,
   },

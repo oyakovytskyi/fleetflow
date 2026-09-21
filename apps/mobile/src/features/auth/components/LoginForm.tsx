@@ -1,15 +1,17 @@
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import { APP_NAME } from '@/src/constants';
 
 import { getAuthErrorMessage, useLogin } from '../hooks/useAuth';
-import { AuthButton, AuthField, useAuthFormState } from './AuthForm';
+import { AuthButton, AuthError, AuthField, useAuthFormState } from './AuthForm';
 
 export function LoginForm() {
   const { email, setEmail, password, setPassword, error, setError } = useAuthFormState();
   const loginMutation = useLogin();
+  const muted = useThemeColor({}, 'muted');
+  const tint = useThemeColor({}, 'tint');
 
   async function onSubmit() {
     setError(null);
@@ -30,9 +32,11 @@ export function LoginForm() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.brand}>{APP_NAME}</Text>
+      <Text style={[styles.brand, { color: tint }]}>{APP_NAME}</Text>
       <Text style={styles.title}>Sign in</Text>
-      <Text style={styles.subtitle}>Driver access for deliveries and live tracking.</Text>
+      <Text style={[styles.subtitle, { color: muted }]}>
+        Driver access for deliveries and live tracking.
+      </Text>
 
       <View style={styles.form}>
         <AuthField
@@ -54,7 +58,7 @@ export function LoginForm() {
           placeholder="••••••••"
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <AuthError message={error} /> : null}
 
         <AuthButton label="Sign in" onPress={onSubmit} loading={loginMutation.isPending} />
       </View>
@@ -80,7 +84,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1,
     textTransform: 'uppercase',
-    opacity: 0.55,
   },
   title: {
     fontSize: 28,
@@ -88,13 +91,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: 20,
-    opacity: 0.65,
   },
   form: {
     gap: 14,
-  },
-  error: {
-    color: '#d92d20',
-    fontSize: 14,
+    backgroundColor: 'transparent',
   },
 });

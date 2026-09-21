@@ -1,12 +1,14 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import { DeliveryDetailsView } from '@/src/features/deliveries/components/DeliveryDetailsView';
 import { useDelivery } from '@/src/features/deliveries/hooks/useDeliveries';
 
 export default function DeliveryDetailScreen() {
   const router = useRouter();
+  const tint = useThemeColor({}, 'tint');
+  const danger = useThemeColor({}, 'danger');
   const { id } = useLocalSearchParams<{ id: string }>();
   const deliveryId = typeof id === 'string' ? id : id?.[0] ?? '';
   const { data, isLoading, isError, refetch } = useDelivery(deliveryId);
@@ -16,19 +18,19 @@ export default function DeliveryDetailScreen() {
       <Stack.Screen options={{ headerShown: true, title: 'Delivery' }} />
 
       <Pressable onPress={() => router.back()} style={styles.back}>
-        <Text style={styles.backLabel}>← Back</Text>
+        <Text style={[styles.backLabel, { color: tint }]}>← Back</Text>
       </Pressable>
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color={tint} />
         </View>
       ) : null}
 
       {isError ? (
         <View style={styles.centered}>
-          <Text style={styles.error}>Could not load this delivery.</Text>
-          <Text style={styles.link} onPress={() => void refetch()}>
+          <Text style={[styles.error, { color: danger }]}>Could not load this delivery.</Text>
+          <Text style={[styles.link, { color: tint }]} onPress={() => void refetch()}>
             Retry
           </Text>
         </View>
@@ -51,7 +53,6 @@ const styles = StyleSheet.create({
   backLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2f95dc',
   },
   centered: {
     flex: 1,
@@ -60,11 +61,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   error: {
-    color: '#d92d20',
     fontWeight: '600',
   },
   link: {
     fontWeight: '700',
-    color: '#2f95dc',
   },
 });

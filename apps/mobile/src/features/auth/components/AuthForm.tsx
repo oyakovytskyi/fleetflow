@@ -15,14 +15,15 @@ type FieldProps = TextInputProps & {
 
 export function AuthField({ label, style, ...rest }: FieldProps) {
   const color = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({ light: '#d0d5dd', dark: '#333' }, 'text');
-  const backgroundColor = useThemeColor({ light: '#f8fafc', dark: '#111' }, 'background');
+  const muted = useThemeColor({}, 'muted');
+  const borderColor = useThemeColor({}, 'border');
+  const backgroundColor = useThemeColor({}, 'surface');
 
   return (
     <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: muted }]}>{label}</Text>
       <TextInput
-        placeholderTextColor="#98a2b3"
+        placeholderTextColor={muted}
         autoCapitalize="none"
         autoCorrect={false}
         style={[styles.input, { color, borderColor, backgroundColor }, style]}
@@ -49,6 +50,7 @@ export function AuthButton({
 }: ButtonProps) {
   const isPrimary = variant === 'primary';
   const tint = useThemeColor({}, 'tint');
+  const onTint = useThemeColor({}, 'onTint');
 
   return (
     <Pressable
@@ -58,20 +60,17 @@ export function AuthButton({
       style={({ pressed }) => [
         styles.button,
         isPrimary
-          ? { backgroundColor: tint, opacity: pressed || disabled || loading ? 0.7 : 1 }
-          : { opacity: pressed || disabled || loading ? 0.5 : 1 },
+          ? { backgroundColor: tint, opacity: pressed || disabled || loading ? 0.75 : 1 }
+          : {
+              backgroundColor: 'transparent',
+              opacity: pressed || disabled || loading ? 0.55 : 1,
+            },
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? '#fff' : tint} />
+        <ActivityIndicator color={isPrimary ? onTint : tint} />
       ) : (
-        <Text
-          style={[styles.buttonLabel, isPrimary ? styles.primaryLabel : { color: tint }]}
-          lightColor={isPrimary ? '#fff' : undefined}
-          darkColor={isPrimary ? '#000' : undefined}
-        >
-          {label}
-        </Text>
+        <Text style={[styles.buttonLabel, { color: isPrimary ? onTint : tint }]}>{label}</Text>
       )}
     </Pressable>
   );
@@ -95,14 +94,20 @@ export function useAuthFormState() {
   };
 }
 
+/** Shared danger text for form errors. */
+export function AuthError({ message }: { message: string }) {
+  const danger = useThemeColor({}, 'danger');
+  return <Text style={[styles.error, { color: danger }]}>{message}</Text>;
+}
+
 const styles = StyleSheet.create({
   field: {
     gap: 6,
+    backgroundColor: 'transparent',
   },
   label: {
     fontSize: 13,
     fontWeight: '600',
-    opacity: 0.7,
   },
   input: {
     borderWidth: 1,
@@ -122,7 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  primaryLabel: {
-    color: '#fff',
+  error: {
+    fontSize: 14,
   },
 });

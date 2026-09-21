@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
-import { AuthButton } from '@/src/features/auth/components/AuthForm';
+import { Text, View, useThemeColor } from '@/components/Themed';
+import { AuthButton, AuthError } from '@/src/features/auth/components/AuthForm';
 import { getAuthErrorMessage } from '@/src/features/auth/hooks/useAuth';
 import {
   useClaimDelivery,
@@ -22,6 +22,7 @@ type Props = {
 export function DeliveryDetailsView({ delivery }: Props) {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const muted = useThemeColor({}, 'muted');
   const claim = useClaimDelivery();
   const start = useStartDelivery();
   const complete = useCompleteDelivery();
@@ -47,9 +48,13 @@ export function DeliveryDetailsView({ delivery }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{delivery.title}</Text>
-      <Text style={styles.status}>{delivery.status.replaceAll('_', ' ')}</Text>
+      <Text style={[styles.status, { color: muted }]}>
+        {delivery.status.replaceAll('_', ' ')}
+      </Text>
 
-      {delivery.description ? <Text style={styles.body}>{delivery.description}</Text> : null}
+      {delivery.description ? (
+        <Text style={[styles.body, { color: muted }]}>{delivery.description}</Text>
+      ) : null}
 
       <View style={styles.meta}>
         <Meta
@@ -62,7 +67,7 @@ export function DeliveryDetailsView({ delivery }: Props) {
         />
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <AuthError message={error} /> : null}
 
       <View style={styles.actions}>
         <AuthButton label="View on map" variant="ghost" onPress={openOnMap} />
@@ -98,9 +103,10 @@ export function DeliveryDetailsView({ delivery }: Props) {
 }
 
 function Meta({ label, value }: { label: string; value: string }) {
+  const muted = useThemeColor({}, 'muted');
   return (
     <View style={styles.metaRow}>
-      <Text style={styles.metaLabel}>{label}</Text>
+      <Text style={[styles.metaLabel, { color: muted }]}>{label}</Text>
       <Text style={styles.metaValue}>{value}</Text>
     </View>
   );
@@ -121,23 +127,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
-    opacity: 0.55,
   },
   body: {
     fontSize: 15,
     lineHeight: 22,
-    opacity: 0.8,
   },
   meta: {
     marginTop: 8,
     gap: 8,
+    backgroundColor: 'transparent',
   },
   metaRow: {
     gap: 2,
+    backgroundColor: 'transparent',
   },
   metaLabel: {
     fontSize: 12,
-    opacity: 0.55,
     fontWeight: '600',
   },
   metaValue: {
@@ -146,9 +151,6 @@ const styles = StyleSheet.create({
   actions: {
     marginTop: 24,
     gap: 12,
-  },
-  error: {
-    color: '#d92d20',
-    fontSize: 14,
+    backgroundColor: 'transparent',
   },
 });

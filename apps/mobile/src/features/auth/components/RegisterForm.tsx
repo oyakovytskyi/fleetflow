@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import { APP_NAME } from '@/src/constants';
 
 import { getAuthErrorMessage, useRegister } from '../hooks/useAuth';
-import { AuthButton, AuthField, useAuthFormState } from './AuthForm';
+import { AuthButton, AuthError, AuthField, useAuthFormState } from './AuthForm';
 
 export function RegisterForm() {
   const {
@@ -19,6 +19,8 @@ export function RegisterForm() {
     setError,
   } = useAuthFormState();
   const registerMutation = useRegister();
+  const muted = useThemeColor({}, 'muted');
+  const tint = useThemeColor({}, 'tint');
 
   async function onSubmit() {
     setError(null);
@@ -44,9 +46,11 @@ export function RegisterForm() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.brand}>{APP_NAME}</Text>
+      <Text style={[styles.brand, { color: tint }]}>{APP_NAME}</Text>
       <Text style={styles.title}>Create account</Text>
-      <Text style={styles.subtitle}>Register as a driver to start taking deliveries.</Text>
+      <Text style={[styles.subtitle, { color: muted }]}>
+        Register as a driver to start taking deliveries.
+      </Text>
 
       <View style={styles.form}>
         <AuthField
@@ -77,7 +81,7 @@ export function RegisterForm() {
           placeholder="At least 8 characters"
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <AuthError message={error} /> : null}
 
         <AuthButton
           label="Create account"
@@ -107,7 +111,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1,
     textTransform: 'uppercase',
-    opacity: 0.55,
   },
   title: {
     fontSize: 28,
@@ -115,13 +118,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: 20,
-    opacity: 0.65,
   },
   form: {
     gap: 14,
-  },
-  error: {
-    color: '#d92d20',
-    fontSize: 14,
+    backgroundColor: 'transparent',
   },
 });
