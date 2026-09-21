@@ -17,6 +17,11 @@ dist/
 # Next.js
 .next/
 out/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
 
 # Python
 __pycache__/
