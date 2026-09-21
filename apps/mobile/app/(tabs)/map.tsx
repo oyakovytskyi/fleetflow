@@ -13,19 +13,23 @@ import {
   deliverySelected,
   selectSelectedDeliveryId,
 } from '@/src/store/slices/deliveriesSlice';
-import { selectActiveDeliveryId } from '@/src/store/slices/trackingSlice';
+import {
+  selectActiveDeliveryId,
+  selectCurrentLocation,
+} from '@/src/store/slices/trackingSlice';
 
 export default function MapScreen() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const activeDeliveryId = useAppSelector(selectActiveDeliveryId);
+  const trackedLocation = useAppSelector(selectCurrentLocation);
   const selectedFromStore = useAppSelector(selectSelectedDeliveryId);
   const tint = useThemeColor({}, 'tint');
   const danger = useThemeColor({}, 'danger');
   const onTint = useThemeColor({}, 'onTint');
   const { data: deliveries = [], isLoading, isError, refetch } = useDeliveries();
 
-  const [driverLocation, setDriverLocation] = useState<LatLng | null>(null);
+  const [fallbackLocation, setFallbackLocation] = useState<LatLng | null>(null);
   const [locationNote, setLocationNote] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,7 +40,7 @@ export default function MapScreen() {
         const coords = await getCurrentCoords();
         if (cancelled) return;
         if (coords) {
-          setDriverLocation(coords);
+          setFallbackLocation(coords);
           setLocationNote(null);
         } else {
           setLocationNote('Location permission needed to show you on the map.');
@@ -54,6 +58,9 @@ export default function MapScreen() {
     };
   }, []);
 
+  const driverLocation: LatLng | null = trackedLocation
+    ? { latitude: trackedLocation.lat, longitude: trackedLocation.lng }
+    : fallbackLocation;
   useEffect(() => {
     if (selectedFromStore && deliveries.some((d) => d.id === selectedFromStore)) return;
     const picked = pickMapDelivery(deliveries, {

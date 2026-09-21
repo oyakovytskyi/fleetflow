@@ -2,29 +2,27 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-4-maps`**. Sprint 4 map tab is implemented (markers, polyline, picker,
-current location, View on map from delivery detail). Typecheck green.
+Branch: **`feat/sprint-5-tracking`**. Implementing Sprint 5 — foreground GPS
+(`watchPositionAsync` → `POST /tracking/location` → Redis last-known + map live marker).
 
 ## Recent decisions
 
-- Feature branch workflow: `feat/sprint-4-maps` off `main`; update PLAN + memory bank after each task.
-- Theme: dark-mode `tint` is brand blue (not white) so primary buttons stay readable; tokens include
-  `muted`, `border`, `surface`, `danger`, `success`, `onTint`.
-- Map: **Leaflet + Carto/OSM tiles in a WebView** (free, no API keys). Replaced `react-native-maps`
-  which often renders blank without a Google Maps key.
-- Map prefers Redux `deliveries.selectedDeliveryId`, then tracking `activeDeliveryId`, then smart pick.
+- Map uses free Leaflet + Carto/OSM WebView (no Google key).
+- Theme tokens: brand tint in light/dark; `muted` / `border` / `surface` / `danger` / `success` / `onTint`.
+- Tracking starts when driver starts a delivery (and resumes if already `IN_PROGRESS`).
+- Location posts are best-effort in foreground; offline queue is Sprint 7.
 
 ## Environment
 
 - Local: `C:\Users\exact\Desktop\reactnative`
 - GitHub: https://github.com/oyakovytskyi/fleetflow
-- Branch: `feat/sprint-4-maps`
+- Branches: `feat/sprint-4-maps`, `feat/sprint-5-tracking` (current)
 
 ## Next steps
 
-1. Push branch / open PR when ready.
-2. Sprint 5: foreground GPS watch + `POST /tracking/location`.
-3. Scaffold Next.js admin (Sprint 6).
+1. Finish tracking API + mobile wiring; typecheck; commit.
+2. Verify: start delivery → GPS on → map “You” marker moves / API accepts posts.
+3. Sprint 6: WebSocket fan-out + admin live map.
 
 ## Open questions
 

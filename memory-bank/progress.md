@@ -31,11 +31,14 @@
 - [x] Sprint 4 maps: Leaflet/OSM WebView (free tiles), markers, polyline, picker
 - [x] Deliveries UI slice (`selectedDeliveryId`) + View on map from detail
 - [x] Theme tokens for readable light/dark UI
+- [x] Foreground GPS watch + `POST /tracking/location` + Redis hot key
+- [x] Auto-start tracking on delivery start / resume when IN_PROGRESS
 
 ## In progress
 
-- [ ] Push / merge `feat/sprint-4-maps`
-- [ ] Sprint 5: foreground GPS tracking
+- [ ] Device smoke test for tracking + OSM map
+- [ ] Push feature branches when SSH/auth available
+- [ ] Sprint 6: WebSocket admin live map
 - [ ] Scaffold Next.js admin
 - [ ] ESLint config so the turbo `lint` task does real work
 
@@ -46,8 +49,8 @@
 - [x] Auth API (JWT + refresh rotation)
 - [x] Auth mobile UI (SecureStore/AsyncStorage + refresh interceptor)
 - [x] Deliveries API + mobile list/detail
-- [x] Map (driver/pickup/destination + polyline)
-- [ ] Foreground GPS → POST/WS location
+- [x] Map (driver/pickup/destination + polyline via Leaflet/OSM)
+- [x] Foreground GPS → POST /tracking/location (Redis; WS fan-out next)
 - [ ] Admin live map
 
 ### v2

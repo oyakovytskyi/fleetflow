@@ -16,19 +16,15 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Status (2026-09-21)
 
-**Sprint 4 maps implemented on `feat/sprint-4-maps`.** Next: Sprint 5 (foreground GPS).
+**Sprint 5 foreground tracking in progress on `feat/sprint-5-tracking`.**
 
 | Sprint | Focus | Status |
 | --- | --- | --- |
-| 0 | Bootstrap / Turborepo | Done |
-| 1 | Mobile foundation (RTK + Query + env) | Done |
-| 2 | FastAPI + JWT + Docker | Done |
-| 3 | Deliveries API + mobile auth/list/detail | Done |
-| 4 | Maps | **Done (this branch)** |
-| 5 | Foreground GPS tracking | **Next** |
+| 0–3 | Bootstrap → deliveries | Done |
+| 4 | Maps (Leaflet/OSM) | Done (`feat/sprint-4-maps`) |
+| 5 | Foreground GPS tracking | **In progress** |
 | 6 | WebSocket + admin live map | Pending |
-| 7–8 | Offline + background GPS (v2) | Later |
-| 9–10 | Admin depth + polish (v2/v3) | Later |
+| 7–10 | Offline / background / polish | Later |
 
 ## Phase 0 — Bootstrap
 
@@ -68,9 +64,10 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Sprint 5 — Foreground tracking ← current
 
-1. [ ] Location service (`watchPositionAsync`)
-2. [ ] `POST /tracking/location`
-3. [ ] Tracking Redux slice + start/stop on delivery
+1. [x] Location service (`watchPositionAsync`)
+2. [x] `POST /tracking/location` (Redis last-known + pub/sub publish)
+3. [x] Tracking Redux slice + start/stop on delivery start/complete
+4. [ ] Device smoke test (start delivery → GPS sharing on → map updates)
 
 ## Sprint 6 — Realtime + admin MVP
 

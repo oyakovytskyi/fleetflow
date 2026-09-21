@@ -1,6 +1,6 @@
 import type { DeliveryDto } from '@fleetflow/shared-types';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import { Text, View, useThemeColor } from '@/components/Themed';
@@ -11,9 +11,11 @@ import {
   useCompleteDelivery,
   useStartDelivery,
 } from '@/src/features/deliveries/hooks/useDeliveries';
+import { useDeliveryTracking } from '@/src/features/tracking/hooks/useDeliveryTracking';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { selectUser } from '@/src/store/slices/authSlice';
 import { deliverySelected } from '@/src/store/slices/deliveriesSlice';
+import { selectIsTracking } from '@/src/store/slices/trackingSlice';
 
 type Props = {
   delivery: DeliveryDto;
@@ -22,14 +24,28 @@ type Props = {
 export function DeliveryDetailsView({ delivery }: Props) {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const isTracking = useAppSelector(selectIsTracking);
   const muted = useThemeColor({}, 'muted');
+  const success = useThemeColor({}, 'success');
   const claim = useClaimDelivery();
   const start = useStartDelivery();
   const complete = useCompleteDelivery();
+  const { startTracking, stopTracking } = useDeliveryTracking();
   const [error, setError] = useState<string | null>(null);
+  const resumeAttemptedFor = useRef<string | null>(null);
 
   const busy = claim.isPending || start.isPending || complete.isPending;
   const isMine = user?.id === delivery.driverId;
+
+  // Resume GPS if this delivery is already in progress (e.g. after app reopen).
+  useEffect(() => {
+    if (delivery.status !== 'IN_PROGRESS' || !isMine || isTracking) return;
+    if (resumeAttemptedFor.current === delivery.id) return;
+    resumeAttemptedFor.current = delivery.id;
+    void startTracking(delivery.id).catch((err: unknown) => {
+      setError(err instanceof Error ? err.message : 'Could not start GPS.');
+    });
+  }, [delivery.id, delivery.status, isMine, isTracking, startTracking]);
 
   async function run(action: () => Promise<unknown>) {
     setError(null);
@@ -51,6 +67,12 @@ export function DeliveryDetailsView({ delivery }: Props) {
       <Text style={[styles.status, { color: muted }]}>
         {delivery.status.replaceAll('_', ' ')}
       </Text>
+
+      {delivery.status === 'IN_PROGRESS' && isMine ? (
+        <Text style={[styles.tracking, { color: isTracking ? success : muted }]}>
+          {isTracking ? 'GPS sharing on' : 'GPS sharing off'}
+        </Text>
+      ) : null}
 
       {delivery.description ? (
         <Text style={[styles.body, { color: muted }]}>{delivery.description}</Text>
@@ -84,7 +106,12 @@ export function DeliveryDetailsView({ delivery }: Props) {
           <AuthButton
             label="Start delivery"
             loading={busy}
-            onPress={() => run(() => start.mutateAsync(delivery.id))}
+            onPress={() =>
+              run(async () => {
+                await start.mutateAsync(delivery.id);
+                await startTracking(delivery.id);
+              })
+            }
           />
         ) : null}
 
@@ -92,7 +119,12 @@ export function DeliveryDetailsView({ delivery }: Props) {
           <AuthButton
             label="Mark completed"
             loading={busy}
-            onPress={() => run(() => complete.mutateAsync(delivery.id))}
+            onPress={() =>
+              run(async () => {
+                await complete.mutateAsync(delivery.id);
+                await stopTracking();
+              })
+            }
           />
         ) : null}
 
@@ -127,6 +159,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
+  },
+  tracking: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   body: {
     fontSize: 15,
