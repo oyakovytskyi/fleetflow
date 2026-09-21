@@ -71,6 +71,11 @@ export interface LocationSampleDto {
   timestamp: number;
 }
 
+/** Body for `POST /tracking/location`. */
+export interface PostLocationRequestDto extends LocationSampleDto {
+  deliveryId: string;
+}
+
 export interface DriverLocationUpdatedEvent {
   type: 'driver.location.updated';
   payload: {
