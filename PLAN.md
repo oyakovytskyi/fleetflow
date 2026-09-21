@@ -120,4 +120,4 @@ Driver can log in, start a delivery, share GPS; admin sees the marker move over 
 ## Local / remote
 
 - Local path: `C:\Users\exact\Desktop\reactnative`
-- GitHub: see repo URL after first push (`oyakovytskyi/fleetflow`)
+- GitHub: https://github.com/oyakovytskyi/fleetflow
