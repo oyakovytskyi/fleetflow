@@ -1,4 +1,5 @@
 import type { DeliveryDto } from '@fleetflow/shared-types';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
@@ -10,14 +11,16 @@ import {
   useCompleteDelivery,
   useStartDelivery,
 } from '@/src/features/deliveries/hooks/useDeliveries';
-import { useAppSelector } from '@/src/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { selectUser } from '@/src/store/slices/authSlice';
+import { deliverySelected } from '@/src/store/slices/deliveriesSlice';
 
 type Props = {
   delivery: DeliveryDto;
 };
 
 export function DeliveryDetailsView({ delivery }: Props) {
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const claim = useClaimDelivery();
   const start = useStartDelivery();
@@ -34,6 +37,11 @@ export function DeliveryDetailsView({ delivery }: Props) {
     } catch (err) {
       setError(getAuthErrorMessage(err));
     }
+  }
+
+  function openOnMap() {
+    dispatch(deliverySelected(delivery.id));
+    router.push('/(tabs)/map');
   }
 
   return (
@@ -57,6 +65,8 @@ export function DeliveryDetailsView({ delivery }: Props) {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={styles.actions}>
+        <AuthButton label="View on map" variant="ghost" onPress={openOnMap} />
+
         {delivery.status === 'PENDING' ? (
           <AuthButton
             label="Claim delivery"
