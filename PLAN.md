@@ -92,7 +92,7 @@ Sprint 6 is committed on `feat/sprint-6-realtime`.
 1. [x] Network detection (NetInfo → Redux)
 2. [x] Location queue in AsyncStorage (cap 200)
 3. [x] Flush on reconnect (FIFO)
-4. [ ] Commit `feat/sprint-7-offline`
+4. [x] Commit `feat/sprint-7-offline`
 
 ## Sprint 8 — Background GPS (v2)
 
