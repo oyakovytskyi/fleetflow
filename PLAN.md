@@ -52,7 +52,7 @@ Driver can log in, start a delivery, share GPS; admin sees the marker move over 
 2. [x] Driver list endpoint + live trail polyline
 3. [x] Assign delivery (existing race-safe API)
 4. [x] `demo:drive` GPS simulator for portfolio demos
-5. [ ] Commit + push `feat/sprint-9-admin-depth`
+5. [x] Commit + push `feat/sprint-9-admin-depth`
 
 ## Sprint 10 — Production polish (v3)
 
