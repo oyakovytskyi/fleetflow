@@ -28,8 +28,9 @@
 - [x] Profile screen shows user + sign out
 - [x] Delivery model + endpoints (create/list/get/claim/start/complete/cancel/assign)
 - [x] Mobile deliveries list + detail with claim/start/complete actions
-- [x] Sprint 4 maps: react-native-maps + expo-location, markers, polyline, picker
+- [x] Sprint 4 maps: Leaflet/OSM WebView (free tiles), markers, polyline, picker
 - [x] Deliveries UI slice (`selectedDeliveryId`) + View on map from detail
+- [x] Theme tokens for readable light/dark UI
 
 ## In progress
 

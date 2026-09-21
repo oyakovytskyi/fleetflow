@@ -10,9 +10,9 @@ current location, View on map from delivery detail). Typecheck green.
 - Feature branch workflow: `feat/sprint-4-maps` off `main`; update PLAN + memory bank after each task.
 - Theme: dark-mode `tint` is brand blue (not white) so primary buttons stay readable; tokens include
   `muted`, `border`, `surface`, `danger`, `success`, `onTint`.
+- Map: **Leaflet + Carto/OSM tiles in a WebView** (free, no API keys). Replaced `react-native-maps`
+  which often renders blank without a Google Maps key.
 - Map prefers Redux `deliveries.selectedDeliveryId`, then tracking `activeDeliveryId`, then smart pick.
-- Straight-line polyline only (no directions API yet).
-- `expo-location` foreground permission for “You” marker.
 
 ## Environment
 

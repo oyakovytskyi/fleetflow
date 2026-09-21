@@ -61,9 +61,9 @@ Next.js Admin ◀──────────WS──────────�
 
 ## Sprint 4 — Maps
 
-1. [x] react-native-maps setup (Expo Go compatible)
+1. [x] Free OSM map via Leaflet WebView (no Google/Mapbox API key)
 2. [x] Current location, driver/pickup/destination markers
-3. [x] Polyline + camera helpers
+3. [x] Polyline + camera helpers (fit bounds)
 4. [x] Wire map tab to active / selected delivery
 
 ## Sprint 5 — Foreground tracking ← current

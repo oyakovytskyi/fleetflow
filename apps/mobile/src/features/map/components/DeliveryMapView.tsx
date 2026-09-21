@@ -1,13 +1,14 @@
 import type { DeliveryDto } from '@fleetflow/shared-types';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import { WebView } from 'react-native-webview';
 
-import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import Colors from '@/constants/Colors';
+
+import { buildLeafletMapHtml, zoomFromDelta } from '../leafletHtml';
 import {
   defaultRegion,
-  deliveryRoute,
   destinationCoord,
   pickupCoord,
   regionFitting,
@@ -19,57 +20,50 @@ type Props = {
   driverLocation: LatLng | null;
 };
 
+/**
+ * Free OpenStreetMap basemap via Leaflet (Carto tiles) inside a WebView.
+ * No Google/Mapbox API key — works in Expo Go on iOS and Android.
+ */
 export function DeliveryMapView({ delivery, driverLocation }: Props) {
-  const mapRef = useRef<MapView>(null);
   const scheme = useColorScheme() ?? 'light';
-  const tint = Colors[scheme].tint;
-  const danger = Colors[scheme].danger;
-  const success = Colors[scheme].success;
+  const colors = Colors[scheme];
 
-  const route = useMemo(() => (delivery ? deliveryRoute(delivery) : []), [delivery]);
-
-  const fitPoints = useMemo(() => {
-    const points: LatLng[] = [...route];
+  const html = useMemo(() => {
+    const pickup = delivery ? pickupCoord(delivery) : null;
+    const destination = delivery ? destinationCoord(delivery) : null;
+    const points: LatLng[] = [];
+    if (pickup) points.push(pickup);
+    if (destination) points.push(destination);
     if (driverLocation) points.push(driverLocation);
-    return points;
-  }, [route, driverLocation]);
 
-  useEffect(() => {
-    const next = regionFitting(fitPoints);
-    mapRef.current?.animateToRegion(next, 400);
-  }, [fitPoints]);
+    const region = regionFitting(points.length > 0 ? points : [defaultRegion()]);
+
+    return buildLeafletMapHtml({
+      center: { latitude: region.latitude, longitude: region.longitude },
+      zoom: zoomFromDelta(region.latitudeDelta),
+      pickup,
+      destination,
+      driver: driverLocation,
+      routeTitle: delivery?.title ?? 'Delivery',
+      tint: colors.tint,
+      danger: colors.danger,
+      success: colors.success,
+      isDark: scheme === 'dark',
+    });
+  }, [delivery, driverLocation, colors.tint, colors.danger, colors.success, scheme]);
 
   return (
     <View style={styles.wrap}>
-      <MapView
-        ref={mapRef}
+      <WebView
+        originWhitelist={['*']}
+        source={{ html }}
         style={styles.map}
-        initialRegion={defaultRegion()}
-        showsUserLocation={false}
-        showsMyLocationButton={false}
-      >
-        {delivery ? (
-          <>
-            <Marker
-              coordinate={pickupCoord(delivery)}
-              title="Pickup"
-              description={delivery.title}
-              pinColor={tint}
-            />
-            <Marker
-              coordinate={destinationCoord(delivery)}
-              title="Destination"
-              description={delivery.title}
-              pinColor={danger}
-            />
-            <Polyline coordinates={route} strokeColor={tint} strokeWidth={4} />
-          </>
-        ) : null}
-
-        {driverLocation ? (
-          <Marker coordinate={driverLocation} title="You" pinColor={success} />
-        ) : null}
-      </MapView>
+        javaScriptEnabled
+        domStorageEnabled
+        setSupportMultipleWindows={false}
+        // Phone must reach the tile CDN (needs network).
+        allowsInlineMediaPlayback
+      />
     </View>
   );
 }
@@ -79,6 +73,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    ...StyleSheet.absoluteFill,
+    flex: 1,
+    backgroundColor: 'transparent',
   },
 });

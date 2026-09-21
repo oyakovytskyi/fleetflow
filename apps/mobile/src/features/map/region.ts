@@ -1,11 +1,17 @@
 import type { DeliveryDto } from '@fleetflow/shared-types';
-import type { Region } from 'react-native-maps';
 
 import { MAP_DEFAULTS } from '@/src/constants';
 
 export type LatLng = { latitude: number; longitude: number };
 
-export function defaultRegion(): Region {
+export type MapRegion = {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+};
+
+export function defaultRegion(): MapRegion {
   return {
     latitude: MAP_DEFAULTS.latitude,
     longitude: MAP_DEFAULTS.longitude,
@@ -33,11 +39,7 @@ export function deliveryRoute(delivery: DeliveryDto): LatLng[] {
   return [pickupCoord(delivery), destinationCoord(delivery)];
 }
 
-/**
- * Region that fits the given points with padding. Falls back to defaults
- * when there are no coordinates.
- */
-export function regionFitting(points: LatLng[], paddingFactor = 1.6): Region {
+export function regionFitting(points: LatLng[], paddingFactor = 1.6): MapRegion {
   if (points.length === 0) return defaultRegion();
 
   if (points.length === 1) {
