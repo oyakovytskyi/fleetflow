@@ -44,12 +44,14 @@
 - [x] Sprint 6 committed on `feat/sprint-6-realtime`
 - [x] NetInfo → Redux online/offline
 - [x] AsyncStorage GPS queue + flush on reconnect
+- [x] Pushed `feat/sprint-4-maps` … `feat/sprint-7-offline` to GitHub
+- [x] Background location TaskManager + EAS scaffold (`eas.json`)
 
 ## In progress / blocked on human
 
-- [ ] Device + admin E2E smoke (phone GPS → admin marker)
-- [ ] Commit Sprint 7 on `feat/sprint-7-offline`
-- [ ] Push feature branches when SSH/auth available
+- [ ] Device E2E smoke (phone GPS → admin marker)
+- [ ] `eas build --profile development` for real background GPS
+- [ ] Commit + push `feat/sprint-8-background`
 - [ ] ESLint config so the turbo `lint` task does real work
 
 ## Remaining (high level)

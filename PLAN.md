@@ -16,10 +16,10 @@ Next.js Admin ◀──────────WS──────────�
 
 Maps: Leaflet + Carto/OSM tiles; pickup/driver→destination geometry via public OSRM (OSM roads).
 
-## Status (2026-09-21)
+## Status (2026-09-22)
 
-**Sprint 7 offline queue on `feat/sprint-7-offline`.**  
-Sprint 6 is committed on `feat/sprint-6-realtime`.
+**Sprint 8 background GPS on `feat/sprint-8-background`.**  
+Sprints 4–7 are on GitHub. Sprint 7 offline queue is done.
 
 | Sprint | Focus | Status |
 | --- | --- | --- |
@@ -27,8 +27,9 @@ Sprint 6 is committed on `feat/sprint-6-realtime`.
 | 4 | Maps (Leaflet/OSM) | Done (`feat/sprint-4-maps`) |
 | 5 | Foreground GPS tracking | Done (`feat/sprint-5-tracking`) |
 | 6 | WebSocket + admin live map + OSRM routes | Done (`feat/sprint-6-realtime`) |
-| 7 | Offline location queue | **In progress** |
-| 8–10 | Background / admin depth / polish | Later |
+| 7 | Offline location queue | Done (`feat/sprint-7-offline`) |
+| 8 | Background GPS + EAS scaffold | **In progress** |
+| 9–10 | Admin depth / polish | Later |
 
 ## Phase 0 — Bootstrap
 
@@ -85,20 +86,22 @@ Sprint 6 is committed on `feat/sprint-6-realtime`.
 8. [x] Local notifications (mobile) + browser notifications + admin activity feed
 9. [ ] End-to-end: phone GPS → admin marker moves
 10. [x] Commit `feat/sprint-6-realtime`
-11. [ ] Push feature branches when GitHub auth works
+11. [x] Push feature branches (`feat/sprint-4-maps` … `feat/sprint-7-offline`)
 
-## Sprint 7 — Offline (v2) ← current
+## Sprint 7 — Offline (v2)
 
 1. [x] Network detection (NetInfo → Redux)
 2. [x] Location queue in AsyncStorage (cap 200)
 3. [x] Flush on reconnect (FIFO)
 4. [x] Commit `feat/sprint-7-offline`
 
-## Sprint 8 — Background GPS (v2)
+## Sprint 8 — Background GPS (v2) ← current
 
-1. [ ] TaskManager + `startLocationUpdatesAsync`
-2. [ ] Permissions UX
-3. [ ] EAS development build (required — not Expo Go)
+1. [x] TaskManager + `startLocationUpdatesAsync`
+2. [x] Permissions UX (background vs Expo Go messaging)
+3. [x] EAS scaffold (`eas.json`, bundle ids, background location plugins)
+4. [ ] Run `eas build --profile development` on a device (manual)
+5. [ ] Commit + push `feat/sprint-8-background`
 
 ## Sprint 9 — Admin depth (v2)
 
