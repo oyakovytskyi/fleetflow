@@ -101,7 +101,7 @@ Sprints 4–7 are on GitHub. Sprint 7 offline queue is done.
 2. [x] Permissions UX (background vs Expo Go messaging)
 3. [x] EAS scaffold (`eas.json`, bundle ids, background location plugins)
 4. [ ] Run `eas build --profile development` on a device (manual)
-5. [ ] Commit + push `feat/sprint-8-background`
+5. [x] Commit + push `feat/sprint-8-background`
 
 ## Sprint 9 — Admin depth (v2)
 
