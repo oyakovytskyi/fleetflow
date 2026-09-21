@@ -6,7 +6,9 @@ import {
   startLocationWatch,
   stopLocationWatch,
 } from '@/src/features/tracking/locationWatch';
+import { enqueueLocation } from '@/src/services/locationQueue';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
+import { selectIsOnline } from '@/src/store/slices/networkSlice';
 import {
   locationReceived,
   selectIsTracking,
@@ -17,13 +19,15 @@ import {
 
 /**
  * Starts/stops foreground GPS and posts samples to the API while a delivery
- * is in progress. Safe to call start twice for the same delivery.
+ * is in progress. Offline / failed posts go into the AsyncStorage queue.
  */
 export function useDeliveryTracking() {
   const dispatch = useAppDispatch();
   const isTracking = useAppSelector(selectIsTracking);
+  const isOnline = useAppSelector(selectIsOnline);
   const deliveryIdRef = useRef<string | null>(null);
-  const postingRef = useRef(false);
+  const onlineRef = useRef(isOnline);
+  onlineRef.current = isOnline;
 
   const stopTracking = useCallback(async () => {
     deliveryIdRef.current = null;
@@ -41,16 +45,18 @@ export function useDeliveryTracking() {
           dispatch(locationReceived(sample));
 
           const activeId = deliveryIdRef.current;
-          if (!activeId || postingRef.current) return;
+          if (!activeId) return;
 
-          postingRef.current = true;
-          void postLocation({ ...sample, deliveryId: activeId })
-            .catch(() => {
-              // Keep watching; offline queue lands in Sprint 7.
-            })
-            .finally(() => {
-              postingRef.current = false;
-            });
+          const payload = { ...sample, deliveryId: activeId };
+
+          if (!onlineRef.current) {
+            void enqueueLocation(payload);
+            return;
+          }
+
+          void postLocation(payload).catch(() => {
+            void enqueueLocation(payload);
+          });
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Could not start GPS tracking.';

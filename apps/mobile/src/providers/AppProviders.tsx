@@ -4,6 +4,8 @@ import { AppState, type AppStateStatus } from 'react-native';
 import { Provider } from 'react-redux';
 
 import { useRealtimeSocket } from '@/src/features/tracking/hooks/useRealtimeSocket';
+import { useLocationQueueFlush } from '@/src/features/tracking/hooks/useLocationQueueFlush';
+import { useNetworkStatus } from '@/src/features/tracking/hooks/useNetworkStatus';
 import { queryClient } from '@/src/services/queryClient';
 import { setSessionExpiredHandler } from '@/src/services/apiClient';
 import { store } from '@/src/store';
@@ -33,6 +35,8 @@ function useSessionExpiry() {
 }
 
 function RealtimeBridge({ children }: { children: ReactNode }) {
+  useNetworkStatus();
+  useLocationQueueFlush();
   useRealtimeSocket();
   return children;
 }

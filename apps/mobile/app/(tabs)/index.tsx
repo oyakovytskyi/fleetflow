@@ -5,7 +5,7 @@ import { useAppConfig } from '@/src/hooks';
 import { useAppSelector } from '@/src/store/hooks';
 import { selectUser } from '@/src/store/slices/authSlice';
 import { selectIsOnline } from '@/src/store/slices/networkSlice';
-import { selectConnectionStatus, selectIsTracking } from '@/src/store/slices/trackingSlice';
+import { selectConnectionStatus, selectIsTracking, selectPendingCount } from '@/src/store/slices/trackingSlice';
 
 export default function HomeScreen() {
   const { appName, apiUrl } = useAppConfig();
@@ -13,6 +13,7 @@ export default function HomeScreen() {
   const isOnline = useAppSelector(selectIsOnline);
   const isTracking = useAppSelector(selectIsTracking);
   const connectionStatus = useAppSelector(selectConnectionStatus);
+  const pendingCount = useAppSelector(selectPendingCount);
   const muted = useThemeColor({}, 'muted');
 
   return (
@@ -27,6 +28,7 @@ export default function HomeScreen() {
         <StatusRow label="Role" value={user?.role ?? '—'} />
         <StatusRow label="Network" value={isOnline ? 'online' : 'offline'} />
         <StatusRow label="Tracking" value={isTracking ? 'active' : 'idle'} />
+        <StatusRow label="Queued GPS" value={String(pendingCount)} />
         <StatusRow label="Socket" value={connectionStatus.toLowerCase()} />
         <StatusRow label="API" value={apiUrl} />
       </View>

@@ -7,8 +7,8 @@ export interface TrackingState {
   activeDeliveryId: string | null;
   currentLocation: LocationSampleDto | null;
   connectionStatus: WsConnectionStatus;
-  /** Samples awaiting upload; filled by the offline queue in v2. */
-  pendingLocations: LocationSampleDto[];
+  /** Count of samples waiting in AsyncStorage offline queue. */
+  pendingCount: number;
   lastError: string | null;
 }
 
@@ -17,7 +17,7 @@ const initialState: TrackingState = {
   activeDeliveryId: null,
   currentLocation: null,
   connectionStatus: 'DISCONNECTED',
-  pendingLocations: [],
+  pendingCount: 0,
   lastError: null,
 };
 
@@ -40,11 +40,11 @@ const trackingSlice = createSlice({
     connectionStatusChanged(state, action: PayloadAction<WsConnectionStatus>) {
       state.connectionStatus = action.payload;
     },
-    locationQueued(state, action: PayloadAction<LocationSampleDto>) {
-      state.pendingLocations.push(action.payload);
+    pendingCountChanged(state, action: PayloadAction<number>) {
+      state.pendingCount = action.payload;
     },
     queueFlushed(state) {
-      state.pendingLocations = [];
+      state.pendingCount = 0;
     },
     trackingFailed(state, action: PayloadAction<string>) {
       state.isTracking = false;
@@ -56,7 +56,7 @@ const trackingSlice = createSlice({
     selectActiveDeliveryId: (state) => state.activeDeliveryId,
     selectCurrentLocation: (state) => state.currentLocation,
     selectConnectionStatus: (state) => state.connectionStatus,
-    selectPendingCount: (state) => state.pendingLocations.length,
+    selectPendingCount: (state) => state.pendingCount,
   },
 });
 
@@ -65,7 +65,7 @@ export const {
   trackingStopped,
   locationReceived,
   connectionStatusChanged,
-  locationQueued,
+  pendingCountChanged,
   queueFlushed,
   trackingFailed,
 } = trackingSlice.actions;
