@@ -39,6 +39,7 @@ class TrackingService:
 
         sample = {
             "driverId": str(actor.id),
+            "driverName": actor.name,
             "deliveryId": str(payload.delivery_id),
             "lat": payload.lat,
             "lng": payload.lng,
@@ -58,6 +59,7 @@ class TrackingService:
         await publish_location_event(
             {
                 "driverId": str(actor.id),
+                "driverName": actor.name,
                 "deliveryId": str(payload.delivery_id),
                 "lat": payload.lat,
                 "lng": payload.lng,

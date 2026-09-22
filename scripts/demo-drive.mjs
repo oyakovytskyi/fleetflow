@@ -64,7 +64,7 @@ async function main() {
     deliveries.find((d) => d.status === 'PENDING');
 
   if (!job) {
-    console.log('No delivery found — create one from admin first (Seed Prague demo).');
+    console.log('No open delivery — create one from admin Deliveries, then re-run.');
     process.exit(1);
   }
 

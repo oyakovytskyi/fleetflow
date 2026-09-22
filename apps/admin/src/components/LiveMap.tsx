@@ -4,12 +4,13 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { CircleMarker, Map as LeafletMap, Polyline } from 'leaflet';
 import L from 'leaflet';
 
-import type { DriverLocationSnapshotDto } from '@fleetflow/shared-types';
+import type { DeliveryDto, DriverLocationSnapshotDto } from '@fleetflow/shared-types';
 
 import 'leaflet/dist/leaflet.css';
 
 const DEFAULT_CENTER: [number, number] = [50.087, 14.421];
 const TRAIL_MAX = 80;
+const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving/';
 
 type TrailPoint = { lat: number; lng: number };
 
@@ -17,20 +18,54 @@ interface LiveMapProps {
   locations: DriverLocationSnapshotDto[];
   /** Optional historical trail keyed by driverId (oldest → newest). */
   trails?: Record<string, TrailPoint[]>;
+  /** Active deliveries — used to draw OSRM road polylines (pickup → destination). */
+  deliveries?: DeliveryDto[];
 }
 
-export function LiveMap({ locations, trails = {} }: LiveMapProps) {
+function near(a: TrailPoint, b: TrailPoint): boolean {
+  return Math.abs(a.lat - b.lat) < 0.00005 && Math.abs(a.lng - b.lng) < 0.00005;
+}
+
+function dedupeAppend(base: TrailPoint[], next: TrailPoint): TrailPoint[] {
+  const last = base[base.length - 1];
+  if (last && near(last, next)) return base;
+  return [...base, next].slice(-TRAIL_MAX);
+}
+
+function mergeTrail(history: TrailPoint[], live: TrailPoint[]): TrailPoint[] {
+  if (history.length === 0) return live;
+  let merged = [...history];
+  for (const point of live) {
+    merged = dedupeAppend(merged, point);
+  }
+  return merged.slice(-TRAIL_MAX);
+}
+
+export function LiveMap({ locations, trails = {}, deliveries = [] }: LiveMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Map<string, CircleMarker>>(new Map());
   const polylinesRef = useRef<Map<string, Polyline>>(new Map());
+  const routeLayersRef = useRef<Map<string, Polyline>>(new Map());
   const liveTrailsRef = useRef<Map<string, TrailPoint[]>>(new Map());
   const [ready, setReady] = useState(false);
   const [userMoved, setUserMoved] = useState(false);
+  const [routeNote, setRouteNote] = useState<string | null>(null);
 
   const countLabel = useMemo(
     () => `${locations.length} driver${locations.length === 1 ? '' : 's'}`,
     [locations.length],
+  );
+
+  const routeJobs = useMemo(
+    () =>
+      deliveries.filter(
+        (d) =>
+          d.status === 'PENDING' ||
+          d.status === 'ASSIGNED' ||
+          d.status === 'IN_PROGRESS',
+      ),
+    [deliveries],
   );
 
   useEffect(() => {
@@ -58,6 +93,7 @@ export function LiveMap({ locations, trails = {} }: LiveMapProps) {
       mapRef.current = null;
       markersRef.current.clear();
       polylinesRef.current.clear();
+      routeLayersRef.current.clear();
     };
   }, []);
 
@@ -89,14 +125,10 @@ export function LiveMap({ locations, trails = {} }: LiveMapProps) {
 
       const fromHistory = trails[loc.driverId] ?? [];
       const live = liveTrailsRef.current.get(loc.driverId) ?? [];
-      const nextLive = [...live, { lat: loc.lat, lng: loc.lng }].slice(-TRAIL_MAX);
+      const nextLive = dedupeAppend(live, { lat: loc.lat, lng: loc.lng });
       liveTrailsRef.current.set(loc.driverId, nextLive);
 
-      const merged =
-        fromHistory.length > 0
-          ? [...fromHistory, ...nextLive].slice(-TRAIL_MAX)
-          : nextLive;
-
+      const merged = mergeTrail(fromHistory, nextLive);
       const latLngs = merged.map((p) => [p.lat, p.lng] as [number, number]);
       const line = polylinesRef.current.get(loc.driverId);
       if (latLngs.length >= 2) {
@@ -105,7 +137,7 @@ export function LiveMap({ locations, trails = {} }: LiveMapProps) {
         } else {
           polylinesRef.current.set(
             loc.driverId,
-            L.polyline(latLngs, { color: '#2f6fed', weight: 3, opacity: 0.7 }).addTo(map),
+            L.polyline(latLngs, { color: '#2f6fed', weight: 3, opacity: 0.75 }).addTo(map),
           );
         }
       }
@@ -131,6 +163,83 @@ export function LiveMap({ locations, trails = {} }: LiveMapProps) {
       map.fitBounds(bounds.pad(0.25), { animate: true, maxZoom: 14 });
     }
   }, [locations, ready, userMoved, trails]);
+
+  // Planned road routes (pickup → destination) via public OSRM.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    let cancelled = false;
+    const wanted = new Set(routeJobs.map((d) => d.id));
+
+    for (const [id, layer] of routeLayersRef.current) {
+      if (!wanted.has(id)) {
+        layer.remove();
+        routeLayersRef.current.delete(id);
+      }
+    }
+
+    async function loadRoutes() {
+      let ok = 0;
+      let failed = 0;
+      await Promise.all(
+        routeJobs.map(async (delivery) => {
+          if (routeLayersRef.current.has(delivery.id)) {
+            ok += 1;
+            return;
+          }
+          const from = `${delivery.pickupLongitude},${delivery.pickupLatitude}`;
+          const to = `${delivery.destinationLongitude},${delivery.destinationLatitude}`;
+          try {
+            const res = await fetch(
+              `${OSRM_URL}${from};${to}?overview=full&geometries=geojson`,
+            );
+            if (!res.ok) throw new Error(String(res.status));
+            const data = (await res.json()) as {
+              routes?: { geometry: { coordinates: [number, number][] } }[];
+            };
+            const coords = data.routes?.[0]?.geometry?.coordinates;
+            if (!coords?.length) throw new Error('empty');
+            if (cancelled || !mapRef.current) return;
+            const latLngs = coords.map(([lng, lat]) => [lat, lng] as [number, number]);
+            const line = L.polyline(latLngs, {
+              color: '#0f9d8a',
+              weight: 4,
+              opacity: 0.7,
+              dashArray: '10 8',
+            })
+              .bindPopup(`Road plan · ${delivery.title}`)
+              .addTo(mapRef.current);
+            routeLayersRef.current.set(delivery.id, line);
+            ok += 1;
+          } catch {
+            failed += 1;
+            if (cancelled || !mapRef.current || routeLayersRef.current.has(delivery.id)) return;
+            const fallback = L.polyline(
+              [
+                [delivery.pickupLatitude, delivery.pickupLongitude],
+                [delivery.destinationLatitude, delivery.destinationLongitude],
+              ],
+              { color: '#0f9d8a', weight: 3, opacity: 0.45, dashArray: '4 8' },
+            )
+              .bindPopup(`Straight-line plan · ${delivery.title}`)
+              .addTo(mapRef.current);
+            routeLayersRef.current.set(delivery.id, fallback);
+          }
+        }),
+      );
+      if (!cancelled) {
+        if (routeJobs.length === 0) setRouteNote(null);
+        else if (failed > 0 && ok === 0) setRouteNote('Road plans unavailable (OSRM)');
+        else setRouteNote(`${routeJobs.length} road plan${routeJobs.length === 1 ? '' : 's'}`);
+      }
+    }
+
+    void loadRoutes();
+    return () => {
+      cancelled = true;
+    };
+  }, [routeJobs, ready]);
 
   function recenter() {
     setUserMoved(false);
@@ -159,6 +268,7 @@ export function LiveMap({ locations, trails = {} }: LiveMapProps) {
         }}
       >
         <div style={chipStyle}>{countLabel} on map</div>
+        {routeNote ? <div style={chipStyle}>{routeNote}</div> : null}
         {userMoved ? (
           <button type="button" onClick={recenter} style={{ ...chipStyle, cursor: 'pointer' }}>
             Recenter
@@ -183,5 +293,6 @@ function popupHtml(loc: DriverLocationSnapshotDto): string {
   const when = new Date(loc.timestamp).toLocaleTimeString();
   const ageSec = Math.max(0, Math.round((Date.now() - loc.timestamp) / 1000));
   const age = ageSec < 60 ? `${ageSec}s ago` : `${Math.round(ageSec / 60)}m ago`;
-  return `<strong>Driver</strong> ${loc.driverId.slice(0, 8)}…<br/>${when} (${age})`;
+  const name = loc.driverName?.trim() || `Driver ${loc.driverId.slice(0, 8)}…`;
+  return `<strong>${name}</strong><br/>${when} (${age})`;
 }

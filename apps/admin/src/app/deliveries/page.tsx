@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { DeliveryDto, UserDto } from '@fleetflow/shared-types';
@@ -15,16 +15,25 @@ import {
 } from '@/lib/api';
 import { getAccessToken, getStoredUser } from '@/lib/auth';
 
-const DEMO = {
-  title: 'Admin-created Prague job',
-  description: 'Created from Deliveries page',
-  pickupLatitude: 50.087,
-  pickupLongitude: 14.421,
-  destinationLatitude: 50.1,
-  destinationLongitude: 14.44,
+const EMPTY_FORM = {
+  title: '',
+  description: '',
+  pickupLatitude: '',
+  pickupLongitude: '',
+  destinationLatitude: '',
+  destinationLongitude: '',
 };
 
 type LoadState = 'loading' | 'ready' | 'error';
+
+type CreateForm = {
+  title: string;
+  description: string;
+  pickupLatitude: string;
+  pickupLongitude: string;
+  destinationLatitude: string;
+  destinationLongitude: string;
+};
 
 export default function DeliveriesPage() {
   const router = useRouter();
@@ -33,6 +42,8 @@ export default function DeliveriesPage() {
   const [error, setError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState<CreateForm>(EMPTY_FORM);
 
   const load = useCallback(async () => {
     setLoadState('loading');
@@ -57,13 +68,43 @@ export default function DeliveriesPage() {
     void load();
   }, [router, load]);
 
-  async function onCreate() {
+  async function onCreate(event: FormEvent) {
+    event.preventDefault();
     setError(null);
+    const title = form.title.trim();
+    if (!title) {
+      setError('Title is required.');
+      return;
+    }
+    const pickupLatitude = Number(form.pickupLatitude);
+    const pickupLongitude = Number(form.pickupLongitude);
+    const destinationLatitude = Number(form.destinationLatitude);
+    const destinationLongitude = Number(form.destinationLongitude);
+    if (
+      [pickupLatitude, pickupLongitude, destinationLatitude, destinationLongitude].some(
+        (n) => Number.isNaN(n),
+      )
+    ) {
+      setError('Coordinates must be valid numbers.');
+      return;
+    }
+
+    setCreating(true);
     try {
-      const created = await createDelivery(DEMO);
+      const created = await createDelivery({
+        title,
+        description: form.description.trim() || undefined,
+        pickupLatitude,
+        pickupLongitude,
+        destinationLatitude,
+        destinationLongitude,
+      });
       setDeliveries((prev) => [created, ...prev]);
+      setForm((prev) => ({ ...prev, title: '', description: '' }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Create failed');
+    } finally {
+      setCreating(false);
     }
   }
 
@@ -96,22 +137,87 @@ export default function DeliveriesPage() {
   return (
     <AdminShell>
       <div style={{ padding: 20, display: 'grid', gap: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 24 }}>Deliveries</h1>
-            <p style={{ margin: '6px 0 0', color: 'var(--muted)', fontSize: 14 }}>
-              Create jobs and assign drivers. Race-safe assign is enforced by the API.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void onCreate()}
-            style={primaryBtn}
-            disabled={loadState === 'loading'}
-          >
-            Create Prague delivery
-          </button>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 24 }}>Deliveries</h1>
+          <p style={{ margin: '6px 0 0', color: 'var(--muted)', fontSize: 14 }}>
+            Create jobs and assign drivers. Race-safe assign is enforced by the API.
+          </p>
         </div>
+
+        <form
+          onSubmit={(e) => void onCreate(e)}
+          style={{
+            border: '1px solid var(--border)',
+            borderRadius: 10,
+            background: 'var(--panel)',
+            padding: 14,
+            display: 'grid',
+            gap: 12,
+          }}
+        >
+          <strong style={{ fontSize: 15 }}>Create delivery</strong>
+          <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+            <Field
+              label="Title"
+              value={form.title}
+              onChange={(title) => setForm((f) => ({ ...f, title }))}
+              required
+              placeholder="Downtown pickup"
+            />
+            <Field
+              label="Description"
+              value={form.description}
+              onChange={(description) => setForm((f) => ({ ...f, description }))}
+              placeholder="Optional notes"
+            />
+          </div>
+          <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+            <Field
+              label="Pickup lat"
+              value={form.pickupLatitude}
+              onChange={(pickupLatitude) => setForm((f) => ({ ...f, pickupLatitude }))}
+              required
+              placeholder="50.087"
+            />
+            <Field
+              label="Pickup lng"
+              value={form.pickupLongitude}
+              onChange={(pickupLongitude) => setForm((f) => ({ ...f, pickupLongitude }))}
+              required
+              placeholder="14.421"
+            />
+            <Field
+              label="Destination lat"
+              value={form.destinationLatitude}
+              onChange={(destinationLatitude) => setForm((f) => ({ ...f, destinationLatitude }))}
+              required
+              placeholder="50.100"
+            />
+            <Field
+              label="Destination lng"
+              value={form.destinationLongitude}
+              onChange={(destinationLongitude) => setForm((f) => ({ ...f, destinationLongitude }))}
+              required
+              placeholder="14.440"
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="submit" style={primaryBtn} disabled={creating || loadState === 'loading'}>
+              {creating ? 'Creating…' : 'Create delivery'}
+            </button>
+            <button
+              type="button"
+              style={ghostBtn}
+              onClick={() => setForm(EMPTY_FORM)}
+              disabled={creating}
+            >
+              Clear
+            </button>
+          </div>
+          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 12 }}>
+            Coordinates are WGS84 decimal degrees (pickup and destination).
+          </p>
+        </form>
 
         {error ? <p style={{ color: 'var(--danger)', margin: 0 }}>{error}</p> : null}
 
@@ -134,7 +240,7 @@ export default function DeliveriesPage() {
               <div style={{ display: 'grid', gap: 6 }}>
                 <p style={{ margin: 0, fontWeight: 600 }}>No deliveries yet</p>
                 <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
-                  Create a Prague job above, or wait for a driver to claim one from the mobile app.
+                  Use the form above to create a job, then assign a driver.
                 </p>
               </div>
             ) : (
@@ -157,7 +263,18 @@ export default function DeliveriesPage() {
                       <strong>{delivery.title}</strong>
                       <div style={{ color: 'var(--muted)', fontSize: 13, marginTop: 4 }}>
                         {delivery.status.replaceAll('_', ' ')}
-                        {delivery.driverId ? ` · driver ${delivery.driverId.slice(0, 8)}…` : ''}
+                        {delivery.driverId
+                          ? ` · ${
+                              drivers.find((d) => d.id === delivery.driverId)?.name ??
+                              `driver ${delivery.driverId.slice(0, 8)}…`
+                            }`
+                          : ''}
+                      </div>
+                      <div style={{ color: 'var(--muted)', fontSize: 12, marginTop: 4 }}>
+                        {delivery.pickupLatitude.toFixed(4)}, {delivery.pickupLongitude.toFixed(4)}
+                        {' → '}
+                        {delivery.destinationLatitude.toFixed(4)},{' '}
+                        {delivery.destinationLongitude.toFixed(4)}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -211,6 +328,33 @@ export default function DeliveriesPage() {
   );
 }
 
+function Field({
+  label,
+  value,
+  onChange,
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <label style={{ display: 'grid', gap: 6 }}>
+      <span style={{ color: 'var(--muted)', fontSize: 12 }}>{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        placeholder={placeholder}
+        style={inputStyle}
+      />
+    </label>
+  );
+}
+
 const primaryBtn = {
   border: 0,
   borderRadius: 8,
@@ -237,3 +381,11 @@ const selectStyle = {
   background: '#0c1117',
   color: 'var(--text)',
 } as const;
+
+const inputStyle: CSSProperties = {
+  border: '1px solid var(--border)',
+  borderRadius: 8,
+  padding: '8px 10px',
+  background: '#0c1117',
+  color: 'var(--text)',
+};

@@ -16,6 +16,9 @@ type BuildMapHtmlArgs = {
 /**
  * Leaflet + free Carto/OSM tiles. Road geometry from public OSRM (OSM network).
  * Active trip prefers driver→destination; otherwise pickup→destination.
+ *
+ * Supports live driver updates via `window.__fleetUpdate({ type:'driver', lat, lng })`
+ * so React Native can inject GPS without remounting the WebView.
  */
 export function buildLeafletMapHtml({
   center,
@@ -29,9 +32,10 @@ export function buildLeafletMapHtml({
   success,
   isDark,
 }: BuildMapHtmlArgs): string {
-  const tileUrl = isDark
-    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  // Free OSM raster tiles (no API key). Carto CDN watermarks without a key.
+  const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const tileAttribution =
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | routing OSRM';
 
   const payload = JSON.stringify({
     center: [center.latitude, center.longitude],
@@ -44,6 +48,7 @@ export function buildLeafletMapHtml({
     danger,
     success,
     tileUrl,
+    tileAttribution,
     osrmUrl: 'https://router.project-osrm.org/route/v1/driving/',
   });
 
@@ -58,8 +63,9 @@ export function buildLeafletMapHtml({
     html, body, #map { height: 100%; margin: 0; padding: 0; background: ${isDark ? '#0f172a' : '#e2e8f0'}; }
     .leaflet-control-attribution { font-size: 10px; }
     #hud {
-      position: absolute; z-index: 500; left: 12px; right: 12px; top: 12px;
+      position: absolute; z-index: 500; left: 12px; right: 12px; bottom: 16px;
       display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none;
+      justify-content: center;
     }
     .chip {
       background: rgba(15,23,42,0.88); color: #f8fafc; border-radius: 10px;
@@ -78,12 +84,15 @@ export function buildLeafletMapHtml({
       var map = L.map('map', { zoomControl: true }).setView(cfg.center, cfg.zoom);
       L.tileLayer(cfg.tileUrl, {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> | routing OSRM'
+        attribution: cfg.tileAttribution
       }).addTo(map);
 
-      var bounds = [];
       var routeLayer = null;
+      var driverMarker = null;
       var chip = document.getElementById('routeChip');
+      var lastOsrmAt = 0;
+      var lastOsrmKey = '';
+      var routeRequestId = 0;
 
       function setChip(text) {
         if (chip) chip.textContent = text;
@@ -96,21 +105,22 @@ export function buildLeafletMapHtml({
           iconSize: [16, 16],
           iconAnchor: [8, 8]
         });
-        L.marker(latlng, { icon: icon }).addTo(map).bindPopup(label);
-        bounds.push(latlng);
+        return L.marker(latlng, { icon: icon }).addTo(map).bindPopup(label);
       }
 
       if (cfg.pickup) pin(cfg.pickup, cfg.tint, 'Pickup: ' + cfg.routeTitle);
       if (cfg.destination) pin(cfg.destination, cfg.danger, 'Destination: ' + cfg.routeTitle);
-      if (cfg.driver) pin(cfg.driver, cfg.success, 'You');
 
-      function fitMarkers() {
-        if (bounds.length > 1) {
-          map.fitBounds(bounds, { padding: [56, 56], maxZoom: 15 });
-        } else if (bounds.length === 1) {
-          map.setView(bounds[0], 14);
+      function setDriver(latlng) {
+        if (!latlng) return;
+        if (driverMarker) {
+          driverMarker.setLatLng(latlng);
+        } else {
+          driverMarker = pin(latlng, cfg.success, 'You');
         }
       }
+
+      if (cfg.driver) setDriver(cfg.driver);
 
       function formatRoute(distanceM, durationS) {
         var km = distanceM / 1000;
@@ -127,7 +137,6 @@ export function buildLeafletMapHtml({
           opacity: dashed ? 0.55 : 0.92,
           dashArray: dashed ? '8 10' : null
         }).addTo(map);
-        map.fitBounds(routeLayer.getBounds(), { padding: [56, 56], maxZoom: 15 });
       }
 
       function lonLat(point) {
@@ -152,25 +161,47 @@ export function buildLeafletMapHtml({
         });
       }
 
-      // Prefer live driver→destination when tracking; else pickup→destination.
-      var origin = cfg.driver || cfg.pickup;
-      var dest = cfg.destination;
-      var labelPrefix = cfg.driver ? 'To destination · ' : 'Pickup → drop · ';
+      function refreshRoute(force) {
+        var origin = (driverMarker ? driverMarker.getLatLng() : null);
+        var originArr = origin ? [origin.lat, origin.lng] : cfg.driver;
+        if (!originArr) originArr = cfg.pickup;
+        var dest = cfg.destination;
+        if (!originArr || !dest) {
+          setChip(cfg.pickup || cfg.destination ? 'Select a delivery with both ends' : 'No delivery selected');
+          return;
+        }
 
-      if (origin && dest) {
-        fetchRoad(origin, dest)
+        var labelPrefix = (driverMarker || cfg.driver) ? 'To destination · ' : 'Pickup → drop · ';
+        var key = originArr[0].toFixed(4) + ',' + originArr[1].toFixed(4) + '>' + dest[0].toFixed(4) + ',' + dest[1].toFixed(4);
+        var now = Date.now();
+        if (!force && key === lastOsrmKey && now - lastOsrmAt < 12000) {
+          return;
+        }
+        lastOsrmKey = key;
+        lastOsrmAt = now;
+        var reqId = ++routeRequestId;
+
+        fetchRoad(originArr, dest)
           .then(function (result) {
+            if (reqId !== routeRequestId) return;
             drawLine(result.latLngs, false);
             setChip(labelPrefix + formatRoute(result.distance, result.duration));
           })
           .catch(function () {
-            drawLine([origin, dest], true);
+            if (reqId !== routeRequestId) return;
+            drawLine([originArr, dest], true);
             setChip('Road routing unavailable · straight line');
           });
-      } else {
-        setChip(cfg.pickup || cfg.destination ? 'Select a delivery with both ends' : 'No delivery selected');
-        fitMarkers();
       }
+
+      refreshRoute(true);
+
+      window.__fleetUpdate = function (msg) {
+        if (!msg || msg.type !== 'driver') return;
+        if (typeof msg.lat !== 'number' || typeof msg.lng !== 'number') return;
+        setDriver([msg.lat, msg.lng]);
+        refreshRoute(false);
+      };
     })();
   </script>
 </body>
@@ -180,4 +211,9 @@ export function buildLeafletMapHtml({
 export function zoomFromDelta(latitudeDelta: number): number {
   const zoom = Math.round(Math.log2(360 / Math.max(latitudeDelta, 0.005)));
   return Math.min(16, Math.max(10, zoom));
+}
+
+/** JS snippet injected into the map WebView to move the driver pin without remount. */
+export function driverUpdateScript(lat: number, lng: number): string {
+  return `window.__fleetUpdate && window.__fleetUpdate({type:'driver',lat:${lat},lng:${lng}}); true;`;
 }

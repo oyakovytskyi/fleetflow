@@ -1,14 +1,77 @@
 import type {
+  AuthResponseDto,
   DeliveryDto,
   DriverLocationSnapshotDto,
   UserDto,
 } from '@fleetflow/shared-types';
 
 import { env } from './env';
-import { clearSession, getAccessToken, saveSession, type StoredUser } from './auth';
-import type { AuthResponseDto } from '@fleetflow/shared-types';
+import {
+  clearSession,
+  getAccessToken,
+  getRefreshToken,
+  getStoredUser,
+  saveSession,
+  type StoredUser,
+} from './auth';
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+function formatDetail(detail: unknown): string | null {
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    const parts = detail
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object' && 'msg' in item) {
+          return String((item as { msg: unknown }).msg);
+        }
+        return null;
+      })
+      .filter((part): part is string => Boolean(part));
+    return parts.length > 0 ? parts.join(' ') : null;
+  }
+  return null;
+}
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = (async () => {
+    const refreshToken = getRefreshToken();
+    const user = getStoredUser();
+    if (!refreshToken || !user) return false;
+    try {
+      const response = await fetch(`${env.apiUrl}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!response.ok) return false;
+      const data = (await response.json()) as {
+        accessToken?: string;
+        refreshToken?: string;
+        tokens?: { accessToken: string; refreshToken: string };
+      };
+      const tokens = data.tokens ?? {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      };
+      if (!tokens.accessToken || !tokens.refreshToken) return false;
+      saveSession(
+        { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken },
+        user,
+      );
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
+}
+
+async function request<T>(path: string, init: RequestInit = {}, didRefresh = false): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('Content-Type', 'application/json');
   const token = getAccessToken();
@@ -17,13 +80,21 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
 
   const response = await fetch(`${env.apiUrl}${path}`, { ...init, headers });
+  if (response.status === 401 && !didRefresh && !path.startsWith('/auth/')) {
+    const refreshed = await tryRefresh();
+    if (refreshed) {
+      return request<T>(path, init, true);
+    }
+    clearSession();
+    throw new Error('Session expired. Sign in again.');
+  }
   if (response.status === 401) {
     clearSession();
     throw new Error('Session expired. Sign in again.');
   }
   if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { detail?: string } | null;
-    throw new Error(body?.detail ?? `Request failed (${response.status})`);
+    const body = (await response.json().catch(() => null)) as { detail?: unknown } | null;
+    throw new Error(formatDetail(body?.detail) ?? `Request failed (${response.status})`);
   }
   if (response.status === 204) {
     return undefined as T;
@@ -37,7 +108,7 @@ export async function login(email: string, password: string): Promise<StoredUser
     body: JSON.stringify({ email, password }),
   });
   if (data.user.role !== 'ADMIN') {
-    throw new Error('Admin role required. Register with role ADMIN for this panel.');
+    throw new Error('Admin role required. Use an ADMIN account for this panel.');
   }
   saveSession(data.tokens, data.user);
   return data.user;

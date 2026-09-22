@@ -19,6 +19,14 @@ export function LoginForm() {
       setError('Email and password are required.');
       return;
     }
+    if (!email.includes('@')) {
+      setError('Enter a valid email address.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
 
     try {
       await loginMutation.mutateAsync({

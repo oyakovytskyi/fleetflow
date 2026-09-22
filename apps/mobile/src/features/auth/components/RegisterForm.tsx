@@ -49,7 +49,7 @@ export function RegisterForm() {
       <Text style={[styles.brand, { color: tint }]}>{APP_NAME}</Text>
       <Text style={styles.title}>Create account</Text>
       <Text style={[styles.subtitle, { color: muted }]}>
-        Register as a driver to start taking deliveries.
+        Create a driver account to take deliveries.
       </Text>
 
       <View style={styles.form}>
@@ -60,7 +60,7 @@ export function RegisterForm() {
           autoCapitalize="words"
           textContentType="name"
           autoComplete="name"
-          placeholder="Alex Driver"
+          placeholder="Your name"
         />
         <AuthField
           label="Email"

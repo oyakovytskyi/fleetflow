@@ -33,7 +33,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 def create_app() -> FastAPI:
     settings = get_settings()
 
-    app = FastAPI(title=settings.app_name, version="0.0.1", lifespan=lifespan)
+    app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
 
     app.add_middleware(
         CORSMiddleware,

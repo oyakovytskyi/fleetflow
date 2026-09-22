@@ -2,26 +2,20 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-10-polish`**. Shipping production polish: ESLint, GitHub Actions CI, API smoke tests, empty/loading UX.
+**Production finish** on `feat/sprint-10-polish`: dummy/demo UI stripped, ops UI polished, main flow complete.
 
 ## Recent decisions
 
-- Shared ESLint flat config in `@fleetflow/config/eslint.base.mjs`.
-- CI runs `typecheck`, `lint`, and API `pytest` (no live DB required for smoke).
-- Admin deliveries page has explicit loading / error / empty states with retry.
-- MVP DoD remains satisfied via `npm run demo:drive`.
-
-## Environment
-
-- Local: `C:\Users\exact\Desktop\reactnative`
-- GitHub: https://github.com/oyakovytskyi/fleetflow
-- Branch: `feat/sprint-10-polish`
+- No prefilled admin passwords or “Seed Prague” buttons in the product UI.
+- `demo:drive` remains a **dev script** only (README), not in-app.
+- Admin uses Source Sans 3 + refined dark ops chrome.
+- OSM tiles (no Carto API key watermark).
 
 ## Next steps
 
-1. Open Docker Desktop so `docker compose up -d` can start the API.
-2. Optional EAS background build (manual).
-3. Optional phone E2E smoke against LAN API.
+1. Commit + push production finish.
+2. Optional: open PR to main.
+3. Optional phone / EAS verification.
 
 ## Open questions
 

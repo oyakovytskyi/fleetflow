@@ -1,15 +1,30 @@
 import { router, type Href } from 'expo-router';
+import { useMemo } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet } from 'react-native';
 
 import { Text, View, useThemeColor } from '@/components/Themed';
 import { DeliveryListItem } from '@/src/features/deliveries/components/DeliveryListItem';
 import { useDeliveries } from '@/src/features/deliveries/hooks/useDeliveries';
 
+const STATUS_ORDER = {
+  IN_PROGRESS: 0,
+  ASSIGNED: 1,
+  PENDING: 2,
+  COMPLETED: 3,
+  CANCELLED: 4,
+} as const;
+
 export function DeliveriesListView() {
   const { data, isLoading, isError, isRefetching, refetch, error } = useDeliveries();
   const danger = useThemeColor({}, 'danger');
   const tint = useThemeColor({}, 'tint');
   const muted = useThemeColor({}, 'muted');
+
+  const sorted = useMemo(() => {
+    const list = [...(data ?? [])];
+    list.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+    return list;
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -35,7 +50,7 @@ export function DeliveriesListView() {
 
   return (
     <FlatList
-      data={data ?? []}
+      data={sorted}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.list}
       refreshControl={
@@ -45,7 +60,7 @@ export function DeliveriesListView() {
         <View style={styles.centered}>
           <Text style={styles.emptyTitle}>No deliveries yet</Text>
           <Text style={[styles.hint, { color: muted }]}>
-            Ask an admin to create a job, or pull to refresh after one is assigned.
+            When an operator creates a job, it will show up here.
           </Text>
         </View>
       }

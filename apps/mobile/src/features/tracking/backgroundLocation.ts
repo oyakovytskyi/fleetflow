@@ -82,15 +82,16 @@ export async function isBackgroundLocationRunning(): Promise<boolean> {
 
 /**
  * Starts OS background location updates for an active delivery.
- * No-ops in Expo Go — callers should keep the foreground watch there.
+ * Always persists the active delivery id (needed by the BG task and for resume).
+ * No-ops the OS task in Expo Go — callers should keep the foreground watch there.
  */
 export async function startBackgroundLocation(deliveryId: string): Promise<'started' | 'unavailable' | 'denied'> {
+  await persistActiveDeliveryId(deliveryId);
+
   if (!canUseBackgroundLocation()) return 'unavailable';
 
   const allowed = await requestBackgroundLocationPermission();
   if (!allowed) return 'denied';
-
-  await persistActiveDeliveryId(deliveryId);
 
   const already = await isBackgroundLocationRunning();
   if (already) {
@@ -121,3 +122,5 @@ export async function stopBackgroundLocation(): Promise<void> {
     await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
   }
 }
+
+export { readActiveDeliveryId };

@@ -23,6 +23,7 @@ class LocationAcceptedResponse(CamelModel):
 
 class DriverLocationSnapshot(CamelModel):
     driver_id: str
+    driver_name: str | None = None
     delivery_id: str | None = None
     lat: float
     lng: float

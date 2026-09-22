@@ -53,12 +53,15 @@
 - [x] GitHub Actions CI (typecheck + lint + API pytest)
 - [x] API pytest smoke (domain errors + enums)
 - [x] Admin deliveries loading / error / empty polish
+- [x] Home driver dashboard (active / assigned / browse)
+- [x] App-level GPS resume for IN_PROGRESS (+ persist activeDeliveryId in Expo Go)
+- [x] Driver names on admin live map + deliveries list
+- [x] Production look: strip demo credentials / seed buttons; ops UI polish
 
 ## In progress / blocked on human
 
 - [ ] Optional phone E2E smoke
 - [ ] `eas build --profile development` for real background GPS
-- [x] Commit + push Sprint 10 (`feat/sprint-10-polish`)
 
 ## Remaining (high level)
 

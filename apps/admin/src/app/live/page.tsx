@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -12,7 +13,7 @@ import {
 } from '@fleetflow/shared-types';
 
 import { AdminShell } from '@/components/AdminShell';
-import { createDelivery, fetchDeliveries, fetchDriverTrail, fetchLocations } from '@/lib/api';
+import { fetchDeliveries, fetchDriverTrail, fetchLocations } from '@/lib/api';
 import { getAccessToken, getStoredUser } from '@/lib/auth';
 import { AdminLiveSocket } from '@/lib/ws';
 
@@ -20,15 +21,6 @@ const LiveMap = dynamic(() => import('@/components/LiveMap').then((m) => m.LiveM
   ssr: false,
   loading: () => <div style={{ padding: 24, color: 'var(--muted)' }}>Loading map…</div>,
 });
-
-const DEMO_DELIVERY = {
-  title: 'Demo Prague drop',
-  description: 'Seeded from admin for phone ↔ live-map testing',
-  pickupLatitude: 50.087,
-  pickupLongitude: 14.421,
-  destinationLatitude: 50.105,
-  destinationLongitude: 14.45,
-};
 
 const EVENT_LABEL: Record<DeliveryLifecycleEvent['type'], string> = {
   'delivery.created': 'Created',
@@ -67,7 +59,6 @@ export default function LivePage() {
     'DISCONNECTED',
   );
   const [error, setError] = useState<string | null>(null);
-  const [seeding, setSeeding] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -135,6 +126,7 @@ export default function LivePage() {
             ...without,
             {
               driverId: next.driverId,
+              driverName: next.driverName ?? null,
               deliveryId: next.deliveryId ?? null,
               lat: next.lat,
               lng: next.lng,
@@ -163,7 +155,7 @@ export default function LivePage() {
         }
       }
     });
-    socket.connect(token);
+    socket.connect();
 
     return () => {
       cancelled = true;
@@ -193,25 +185,13 @@ export default function LivePage() {
     return `${Math.round(ageSec / 60)}m ago`;
   }, [locations, now]);
 
-  async function seedDemo() {
-    setSeeding(true);
-    setError(null);
-    try {
-      await createDelivery(DEMO_DELIVERY);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not create demo delivery');
-    } finally {
-      setSeeding(false);
-    }
-  }
-
   return (
     <AdminShell>
-      <div style={{ padding: '10px 20px', color: 'var(--muted)', fontSize: 13 }}>
+      <div style={{ padding: '10px 22px', color: 'var(--muted)', fontSize: 13 }}>
         Socket {socketStatus.toLowerCase()}
         {freshestAge ? ` · last ping ${freshestAge}` : ''}
       </div>
-      <div className="live-layout" style={{ display: 'grid', gap: 16, padding: 16, minHeight: 0 }}>
+      <div className="live-layout" style={{ display: 'grid', gap: 16, padding: '8px 16px 16px', minHeight: 0 }}>
         <aside style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
           <Stat label="Active drivers" value={String(locations.length)} />
           <Stat label="In progress" value={String(counts.IN_PROGRESS)} />
@@ -219,11 +199,11 @@ export default function LivePage() {
           <Stat label="Pending" value={String(counts.PENDING)} />
           <Stat label="Completed" value={String(counts.COMPLETED)} />
 
-          <button type="button" onClick={() => void seedDemo()} disabled={seeding} style={primaryBtn}>
-            {seeding ? 'Creating…' : 'Seed Prague demo delivery'}
-          </button>
-          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 12, lineHeight: 1.4 }}>
-            Or run <code>npm run demo:drive</code> to simulate a moving driver without a phone.
+          <Link href="/deliveries" style={primaryLink}>
+            Manage deliveries
+          </Link>
+          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 12, lineHeight: 1.45 }}>
+            Create and assign jobs from Deliveries. Drivers share GPS while a delivery is in progress.
           </p>
 
           <div
@@ -234,9 +214,11 @@ export default function LivePage() {
               padding: 12,
             }}
           >
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>Activity</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8, fontWeight: 600 }}>
+              Activity
+            </div>
             {activity.length === 0 ? (
-              <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13 }}>Waiting for events…</p>
+              <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13 }}>No recent events</p>
             ) : (
               <div style={{ display: 'grid', rowGap: 8 }}>
                 {activity.map((item) => (
@@ -263,7 +245,7 @@ export default function LivePage() {
             background: 'var(--panel)',
           }}
         >
-          <LiveMap locations={locations} trails={trails} />
+          <LiveMap locations={locations} trails={trails} deliveries={deliveries} />
         </section>
       </div>
 
@@ -297,12 +279,13 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const primaryBtn = {
+const primaryLink = {
+  display: 'block',
+  textAlign: 'center' as const,
   border: 0,
-  borderRadius: 8,
+  borderRadius: 10,
   padding: '12px 14px',
   background: 'var(--accent)',
   color: '#fff',
   fontWeight: 600,
-  cursor: 'pointer',
-} as const;
+};

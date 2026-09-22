@@ -1,25 +1,30 @@
 # FleetFlow Admin
 
-Thin Next.js dashboard for live driver locations (OSM/Leaflet + WebSocket).
+Next.js operations panel: live map, deliveries, and activity.
 
 ## Run
 
 ```bash
-# from monorepo root (API must be up)
+# from repo root — API must be up
 npm run admin
 ```
 
-Open http://localhost:3000 — sign in with an **ADMIN** account.
+Open http://localhost:3000 and sign in with an **ADMIN** account.
 
-Local demo account (if registered):
+Register an admin once (API):
 
-- email: `admin@fleetflow.dev`
-- password: `password123`
+```bash
+curl -X POST http://localhost:8000/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@example.com","password":"your-password","name":"Admin","role":"ADMIN"}'
+```
+
+## Env
+
+`NEXT_PUBLIC_API_URL` — defaults to `http://localhost:8000`.
 
 ## Features
 
-- JWT login (ADMIN role required)
-- Live OSM/Carto map via Leaflet
-- WebSocket `/ws/live?token=…` for `driver.location.updated`
-- Delivery status counts + “Seed Prague demo delivery”
-- Responsive layout; map recenter after pan/zoom
+- Live Leaflet map (WS markers, GPS trails, OSRM road plans)
+- Deliveries: create, assign, cancel
+- Session refresh + activity feed

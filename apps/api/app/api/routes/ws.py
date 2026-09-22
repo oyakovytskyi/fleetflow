@@ -31,6 +31,8 @@ async def live_tracking_socket(
         payload = decode_token(token, "access")
         user_id = uuid.UUID(str(payload["sub"]))
     except (InvalidToken, KeyError, ValueError):
+        # Accept then close so clients see a clean policy close instead of HTTP 403.
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -38,6 +40,7 @@ async def live_tracking_socket(
         user = await UserRepository(session).get_by_id(user_id)
 
     if user is None:
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 

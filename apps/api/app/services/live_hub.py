@@ -110,6 +110,7 @@ class LiveHub:
             locations.append(
                 {
                     "driverId": sample.get("driverId"),
+                    "driverName": sample.get("driverName"),
                     "deliveryId": sample.get("deliveryId"),
                     "lat": sample.get("lat"),
                     "lng": sample.get("lng"),

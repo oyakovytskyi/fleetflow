@@ -78,6 +78,7 @@ export interface PostLocationRequestDto extends LocationSampleDto {
 
 export interface DriverLocationSnapshotDto {
   driverId: string;
+  driverName?: string | null;
   deliveryId?: string | null;
   lat: number;
   lng: number;
@@ -94,6 +95,7 @@ export interface DriverLocationUpdatedEvent {
   type: 'driver.location.updated';
   payload: {
     driverId: string;
+    driverName?: string;
     deliveryId?: string;
     lat: number;
     lng: number;

@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { useRealtimeSocket } from '@/src/features/tracking/hooks/useRealtimeSocket';
 import { useLocationQueueFlush } from '@/src/features/tracking/hooks/useLocationQueueFlush';
 import { useNetworkStatus } from '@/src/features/tracking/hooks/useNetworkStatus';
+import { useResumeActiveTracking } from '@/src/features/tracking/hooks/useResumeActiveTracking';
 // Side-effect: registers TaskManager.defineTask for background GPS.
 import '@/src/features/tracking/backgroundLocation';
 import { queryClient } from '@/src/services/queryClient';
@@ -40,6 +41,7 @@ function RealtimeBridge({ children }: { children: ReactNode }) {
   useNetworkStatus();
   useLocationQueueFlush();
   useRealtimeSocket();
+  useResumeActiveTracking();
   return children;
 }
 

@@ -29,17 +29,23 @@ export function AdminShell({ children }: { children: ReactNode }) {
           justifyContent: 'space-between',
           gap: 16,
           flexWrap: 'wrap',
-          padding: '14px 20px',
+          padding: '14px 22px',
           borderBottom: '1px solid var(--border)',
-          background: 'rgba(15,20,25,0.9)',
+          background: 'rgba(11, 16, 22, 0.92)',
+          backdropFilter: 'blur(10px)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontSize: 12, letterSpacing: '0.1em', color: 'var(--muted)' }}>FLEETFLOW</div>
-            <div style={{ fontWeight: 700 }}>Admin</div>
+            <div style={{ fontSize: 11, letterSpacing: '0.14em', color: 'var(--muted)', fontWeight: 600 }}>
+              FLEETFLOW
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 17 }}>Operations</div>
           </div>
-          <nav style={{ display: 'flex', gap: 8 }}>
+          <nav style={{ display: 'flex', gap: 6 }}>
             <NavLink href="/live" active={Boolean(pathname?.startsWith('/live'))}>
               Live map
             </NavLink>
@@ -49,7 +55,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </nav>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ color: 'var(--muted)', fontSize: 13 }}>{email ?? 'admin'}</span>
+          <span style={{ color: 'var(--muted)', fontSize: 13 }}>{email ?? 'Operator'}</span>
           <button type="button" onClick={signOut} style={ghostBtn}>
             Sign out
           </button>
@@ -73,13 +79,14 @@ function NavLink({
     <Link
       href={href}
       style={{
-        padding: '8px 12px',
-        borderRadius: 8,
-        border: '1px solid var(--border)',
-        background: active ? 'var(--accent-soft)' : 'transparent',
-        color: 'var(--text)',
+        padding: '8px 14px',
+        borderRadius: 999,
+        border: '1px solid',
+        borderColor: active ? 'transparent' : 'var(--border)',
+        background: active ? 'var(--accent)' : 'transparent',
+        color: active ? '#fff' : 'var(--text)',
         fontSize: 14,
-        fontWeight: active ? 700 : 500,
+        fontWeight: active ? 600 : 500,
       }}
     >
       {children}

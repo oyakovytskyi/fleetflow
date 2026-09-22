@@ -1,14 +1,16 @@
 :root {
-  --bg: #0f1419;
-  --panel: #171d25;
+  --bg: #0b1016;
+  --panel: #121820;
+  --panel-elevated: #18212c;
   --text: #e8eef4;
   --muted: #8b9aab;
-  --accent: #2f6fed;
-  --accent-soft: #1a3a7a;
-  --success: #2f9e6b;
-  --border: #2a3441;
-  --danger: #d64545;
-  --font: "Segoe UI", system-ui, sans-serif;
+  --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --success: #22c55e;
+  --border: #243041;
+  --danger: #ef4444;
+  --radius: 10px;
+  --font: var(--font-sans), "Segoe UI", system-ui, sans-serif;
 }
 
 * {
@@ -19,10 +21,13 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  background: radial-gradient(1200px 600px at 10% -10%, #1a2a44 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #132033 0%, transparent 50%), var(--bg);
+  background:
+    radial-gradient(1000px 520px at 8% -12%, rgba(37, 99, 235, 0.18) 0%, transparent 55%),
+    radial-gradient(800px 420px at 100% 0%, rgba(15, 118, 110, 0.1) 0%, transparent 48%),
+    var(--bg);
   color: var(--text);
   font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -31,6 +36,16 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+code {
+  font-size: 0.92em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--panel-elevated);
+  border: 1px solid var(--border);
 }
