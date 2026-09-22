@@ -2,27 +2,26 @@
 
 ## Current focus
 
-Branch: **`feat/sprint-9-admin-depth`**. Closing the portfolio MVP loop:
-admin deliveries + assign, live trails, `npm run demo:drive` simulator.
+Branch: **`feat/sprint-10-polish`**. Shipping production polish: ESLint, GitHub Actions CI, API smoke tests, empty/loading UX.
 
 ## Recent decisions
 
-- Redis trail key `driver:{id}:trail` (LPUSH/LTRIM, last 120 points).
-- Admin nav: Live map | Deliveries (assign/cancel).
-- Demo driver script proves WebSocket marker motion without a physical phone.
-- MVP DoD: driver GPS → admin live map (demo:drive satisfies automated proof).
+- Shared ESLint flat config in `@fleetflow/config/eslint.base.mjs`.
+- CI runs `typecheck`, `lint`, and API `pytest` (no live DB required for smoke).
+- Admin deliveries page has explicit loading / error / empty states with retry.
+- MVP DoD remains satisfied via `npm run demo:drive`.
 
 ## Environment
 
 - Local: `C:\Users\exact\Desktop\reactnative`
 - GitHub: https://github.com/oyakovytskyi/fleetflow
-- Branch: `feat/sprint-9-admin-depth`
+- Branch: `feat/sprint-10-polish`
 
 ## Next steps
 
-1. Commit + push Sprint 9.
+1. Finish Sprint 10 commit + push.
 2. Optional EAS background build (manual).
-3. Sprint 10: ESLint / tests / CI if desired.
+3. Optional phone E2E smoke against LAN API.
 
 ## Open questions
 

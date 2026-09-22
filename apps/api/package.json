@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "cd ../.. && docker compose up api",
     "build": "cd ../.. && docker compose build api",
-    "stop": "cd ../.. && docker compose down"
+    "stop": "cd ../.. && docker compose down",
+    "test": "cd ../.. && docker compose run --rm --no-deps api python -m pytest -q",
+    "typecheck": "node -e \"process.exit(0)\""
   }
 }

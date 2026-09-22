@@ -49,12 +49,16 @@
 - [x] Admin deliveries page (create / assign / cancel) + driver list API
 - [x] Redis location trails + admin map polylines
 - [x] `npm run demo:drive` GPS simulator (MVP DoD proof without phone)
+- [x] Shared ESLint flat config + `npm run lint`
+- [x] GitHub Actions CI (typecheck + lint + API pytest)
+- [x] API pytest smoke (domain errors + enums)
+- [x] Admin deliveries loading / error / empty polish
 
 ## In progress / blocked on human
 
 - [ ] Optional phone E2E smoke
 - [ ] `eas build --profile development` for real background GPS
-- [ ] ESLint / CI (Sprint 10)
+- [ ] Commit + push Sprint 10 (`feat/sprint-10-polish`)
 
 ## Remaining (high level)
 
@@ -67,21 +71,20 @@
 - [x] Foreground GPS → POST /tracking/location (Redis)
 - [x] Admin live map (WS + Next.js)
 - [ ] Confirmed phone ↔ admin live marker demo
-- [ ] Sprint 6 committed + pushed
 
 ### v2
 
-- [ ] Background location + TaskManager
-- [ ] Offline location queue + sync
-- [ ] Redis pub/sub hardening
-- [ ] Route/trip history
-- [ ] Push notifications
+- [x] Background location + TaskManager (EAS build still manual)
+- [x] Offline location queue + sync
+- [x] Redis pub/sub hardening
+- [ ] Route/trip history (partial via Redis trail)
+- [ ] Push notifications (local/browser only today)
 
 ### v3
 
 - [ ] Performance (memo, FlatList, normalized state)
-- [ ] Tests (Jest + pytest)
-- [ ] Docker + CI + EAS polish
+- [x] Tests (API pytest smoke; Jest later)
+- [x] Docker + CI + ESLint polish
 
 ## Known issues
 
@@ -91,4 +94,4 @@
 - Physical phone cannot reach `localhost:8000`; set `EXPO_PUBLIC_API_URL` to the machine LAN IP.
 - Admin defaults to `NEXT_PUBLIC_API_URL=http://localhost:8000`.
 - Public OSRM demo can rate-limit; dashed straight-line fallback then applies.
-- Sprint 6 work is largely **uncommitted** on `feat/sprint-6-realtime`.
+- Host Windows may lack a system Python; API tests run in CI / Docker.

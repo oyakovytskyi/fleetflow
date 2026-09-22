@@ -7,10 +7,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /srv
 
 # Copied separately so dependency layers survive app-code edits.
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt requirements-dev.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 
 COPY app ./app
+COPY tests ./tests
+COPY pytest.ini ./
 
 EXPOSE 8000
 

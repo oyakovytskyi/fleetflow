@@ -41,6 +41,12 @@ Open **Live map** while `demo:drive` runs — marker + trail move over WebSocket
 | `npm run admin` | Next.js admin |
 | `npm run demo:drive` | Simulated driver GPS |
 | `npm run typecheck` | Strict TS across workspaces |
+| `npm run lint` | ESLint (admin + mobile) |
+| `npm run test` | API pytest smoke (via Docker) |
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs typecheck, lint, and API unit tests on push/PR.
 
 ## What’s in the MVP
 

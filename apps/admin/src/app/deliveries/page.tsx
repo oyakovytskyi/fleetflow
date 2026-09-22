@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { DeliveryDto, UserDto } from '@fleetflow/shared-types';
@@ -24,12 +24,29 @@ const DEMO = {
   destinationLongitude: 14.44,
 };
 
+type LoadState = 'loading' | 'ready' | 'error';
+
 export default function DeliveriesPage() {
   const router = useRouter();
   const [deliveries, setDeliveries] = useState<DeliveryDto[]>([]);
   const [drivers, setDrivers] = useState<UserDto[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>('loading');
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoadState('loading');
+    setError(null);
+    try {
+      const [dels, drvs] = await Promise.all([fetchDeliveries(), fetchDrivers()]);
+      setDeliveries(dels);
+      setDrivers(drvs);
+      setLoadState('ready');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load deliveries');
+      setLoadState('error');
+    }
+  }, []);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -37,16 +54,8 @@ export default function DeliveriesPage() {
       router.replace('/login');
       return;
     }
-
-    void Promise.all([fetchDeliveries(), fetchDrivers()])
-      .then(([dels, drvs]) => {
-        setDeliveries(dels);
-        setDrivers(drvs);
-      })
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to load deliveries');
-      });
-  }, [router]);
+    void load();
+  }, [router, load]);
 
   async function onCreate() {
     setError(null);
@@ -94,78 +103,105 @@ export default function DeliveriesPage() {
               Create jobs and assign drivers. Race-safe assign is enforced by the API.
             </p>
           </div>
-          <button type="button" onClick={() => void onCreate()} style={primaryBtn}>
+          <button
+            type="button"
+            onClick={() => void onCreate()}
+            style={primaryBtn}
+            disabled={loadState === 'loading'}
+          >
             Create Prague delivery
           </button>
         </div>
 
         {error ? <p style={{ color: 'var(--danger)', margin: 0 }}>{error}</p> : null}
 
-        <div style={{ display: 'grid', gap: 10 }}>
-          {deliveries.length === 0 ? (
-            <p style={{ color: 'var(--muted)' }}>No deliveries yet.</p>
-          ) : (
-            deliveries.map((delivery) => (
-              <article
-                key={delivery.id}
-                style={{
-                  border: '1px solid var(--border)',
-                  borderRadius: 10,
-                  background: 'var(--panel)',
-                  padding: 14,
-                  display: 'grid',
-                  gap: 10,
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                  <div>
-                    <strong>{delivery.title}</strong>
-                    <div style={{ color: 'var(--muted)', fontSize: 13, marginTop: 4 }}>
-                      {delivery.status.replaceAll('_', ' ')}
-                      {delivery.driverId ? ` · driver ${delivery.driverId.slice(0, 8)}…` : ''}
+        {loadState === 'loading' ? (
+          <p style={{ color: 'var(--muted)', margin: 0 }}>Loading deliveries…</p>
+        ) : null}
+
+        {loadState === 'error' ? (
+          <div style={{ display: 'grid', gap: 8 }}>
+            <p style={{ color: 'var(--muted)', margin: 0 }}>Could not load the deliveries list.</p>
+            <button type="button" onClick={() => void load()} style={ghostBtn}>
+              Retry
+            </button>
+          </div>
+        ) : null}
+
+        {loadState === 'ready' ? (
+          <div style={{ display: 'grid', gap: 10 }}>
+            {deliveries.length === 0 ? (
+              <div style={{ display: 'grid', gap: 6 }}>
+                <p style={{ margin: 0, fontWeight: 600 }}>No deliveries yet</p>
+                <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
+                  Create a Prague job above, or wait for a driver to claim one from the mobile app.
+                </p>
+              </div>
+            ) : (
+              deliveries.map((delivery) => (
+                <article
+                  key={delivery.id}
+                  style={{
+                    border: '1px solid var(--border)',
+                    borderRadius: 10,
+                    background: 'var(--panel)',
+                    padding: 14,
+                    display: 'grid',
+                    gap: 10,
+                  }}
+                >
+                  <div
+                    style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}
+                  >
+                    <div>
+                      <strong>{delivery.title}</strong>
+                      <div style={{ color: 'var(--muted)', fontSize: 13, marginTop: 4 }}>
+                        {delivery.status.replaceAll('_', ' ')}
+                        {delivery.driverId ? ` · driver ${delivery.driverId.slice(0, 8)}…` : ''}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      {(delivery.status === 'PENDING' || delivery.status === 'ASSIGNED') &&
+                      drivers.length > 0 ? (
+                        <select
+                          defaultValue=""
+                          disabled={busyId === delivery.id}
+                          onChange={(e) => {
+                            const driverId = e.target.value;
+                            if (driverId) void onAssign(delivery.id, driverId);
+                            e.target.value = '';
+                          }}
+                          style={selectStyle}
+                        >
+                          <option value="" disabled>
+                            Assign driver…
+                          </option>
+                          {drivers.map((driver) => (
+                            <option key={driver.id} value={driver.id}>
+                              {driver.name} ({driver.email})
+                            </option>
+                          ))}
+                        </select>
+                      ) : null}
+                      {delivery.status !== 'COMPLETED' && delivery.status !== 'CANCELLED' ? (
+                        <button
+                          type="button"
+                          disabled={busyId === delivery.id}
+                          onClick={() => void onCancel(delivery.id)}
+                          style={ghostBtn}
+                        >
+                          Cancel
+                        </button>
+                      ) : null}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    {(delivery.status === 'PENDING' || delivery.status === 'ASSIGNED') &&
-                    drivers.length > 0 ? (
-                      <select
-                        defaultValue=""
-                        disabled={busyId === delivery.id}
-                        onChange={(e) => {
-                          const driverId = e.target.value;
-                          if (driverId) void onAssign(delivery.id, driverId);
-                          e.target.value = '';
-                        }}
-                        style={selectStyle}
-                      >
-                        <option value="" disabled>
-                          Assign driver…
-                        </option>
-                        {drivers.map((driver) => (
-                          <option key={driver.id} value={driver.id}>
-                            {driver.name} ({driver.email})
-                          </option>
-                        ))}
-                      </select>
-                    ) : null}
-                    {delivery.status !== 'COMPLETED' && delivery.status !== 'CANCELLED' ? (
-                      <button
-                        type="button"
-                        disabled={busyId === delivery.id}
-                        onClick={() => void onCancel(delivery.id)}
-                        style={ghostBtn}
-                      >
-                        Cancel
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
+                </article>
+              ))
+            )}
+          </div>
+        ) : null}
 
-        {drivers.length === 0 ? (
+        {loadState === 'ready' && drivers.length === 0 ? (
           <p style={{ color: 'var(--muted)', fontSize: 13 }}>
             No drivers registered yet. Create a DRIVER account from the mobile app, then refresh.
           </p>
