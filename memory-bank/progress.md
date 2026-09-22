@@ -58,7 +58,7 @@
 
 - [ ] Optional phone E2E smoke
 - [ ] `eas build --profile development` for real background GPS
-- [ ] Commit + push Sprint 10 (`feat/sprint-10-polish`)
+- [x] Commit + push Sprint 10 (`feat/sprint-10-polish`)
 
 ## Remaining (high level)
 

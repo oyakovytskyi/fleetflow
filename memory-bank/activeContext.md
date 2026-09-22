@@ -19,7 +19,7 @@ Branch: **`feat/sprint-10-polish`**. Shipping production polish: ESLint, GitHub 
 
 ## Next steps
 
-1. Finish Sprint 10 commit + push.
+1. Open Docker Desktop so `docker compose up -d` can start the API.
 2. Optional EAS background build (manual).
 3. Optional phone E2E smoke against LAN API.
 
